@@ -13,8 +13,10 @@ function healthPayload() {
     service: "nesevren-api",
     status: "ok",
     openAIConfigured: Boolean(process.env.OPENAI_API_KEY?.trim()),
+    geminiConfigured: Boolean(process.env.GEMINI_API_KEY?.trim()),
     model: process.env.OPENAI_MODEL?.trim() || "gpt-5.6-terra",
     visionModel: process.env.OPENAI_VISION_MODEL?.trim() || "gpt-5.6",
+    geminiModel: process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash",
   };
 }
 

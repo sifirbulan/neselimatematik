@@ -1,9 +1,25 @@
 {
-  "name": "@neseli-matematik/api",
+  "name": "@nesevren/api",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
-  "scripts": {"dev": "tsx watch src/server.ts", "build": "tsc", "test": "vitest run"},
-  "dependencies": {"express": "latest", "cors": "latest", "tsx": "latest", "typescript": "latest", "vitest": "latest"},
-  "devDependencies": {}
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "cors": "latest",
+    "express": "latest",
+    "openai": "latest"
+  },
+  "devDependencies": {
+    "@types/cors": "latest",
+    "@types/express": "latest",
+    "@types/node": "latest",
+    "tsx": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
+  }
 }

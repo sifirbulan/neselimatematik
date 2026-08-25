@@ -33,6 +33,17 @@ export interface AIAnswer {
   confidence: number;
 }
 
+export interface ProviderExecutor {
+  providerId: string;
+  execute(input: StudentQuestion, analysis: QuestionAnalysis): Promise<AIAnswer>;
+}
+
+export interface ProviderAttempt {
+  providerId: string;
+  answer?: AIAnswer;
+  error?: string;
+}
+
 export interface OrchestratorResult {
   analysis: QuestionAnalysis;
   answer: AIAnswer | null;
@@ -40,4 +51,5 @@ export interface OrchestratorResult {
   providersUsed: string[];
   agreementScore: number;
   finalAnswerSource: string;
+  message: string;
 }

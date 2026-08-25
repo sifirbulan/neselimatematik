@@ -35,7 +35,7 @@ function buildPrompt(input: StudentQuestion, analysis: QuestionAnalysis): string
     `Zorluk: ${analysis.difficulty}`,
   ];
   if (input.inputType === "image") {
-    parts.push("Ekli kırpılmış görseldeki matematik sorusunu dikkatlice oku. Soru metnini, sayıları, şıkları ve sembolleri doğru yorumla; yalnızca görseldeki seçili soruyu çöz.");
+    parts.push("Ekli kırpılmış görselde yalnızca seçili matematik sorusunu oku. Metni, sayıları, seçenekleri ve sembolleri dikkatlice yorumla. Görselde soru yeterince okunmuyorsa bunu açıkça söyle; uydurma yapma.");
   }
   if (input.question) parts.push(`Öğrencinin ek notu: ${input.question}`);
   return parts.join("\n");
@@ -46,24 +46,37 @@ export const openAIExecutor: ProviderExecutor = {
   async execute(input, analysis) {
     const apiKey = process.env.OPENAI_API_KEY?.trim();
     if (!apiKey) throw new Error("OPENAI_API_KEY tanımlı değil.");
+
     const client = new OpenAI({ apiKey });
     const prompt = buildPrompt(input, analysis);
+    const isImage = input.inputType === "image" && Boolean(input.imageDataUrl);
+    const model = isImage
+      ? (process.env.OPENAI_VISION_MODEL?.trim() || "gpt-5.6")
+      : (process.env.OPENAI_MODEL?.trim() || "gpt-5.6-terra");
 
-    const requestInput = input.inputType === "image" && input.imageDataUrl
-      ? [{ role: "user" as const, content: [
-          { type: "input_text" as const, text: prompt },
-          { type: "input_image" as const, image_url: input.imageDataUrl, detail: "high" as const },
-        ] }]
+    const requestInput = isImage
+      ? [{
+          role: "user" as const,
+          content: [
+            { type: "input_text" as const, text: prompt },
+            { type: "input_image" as const, image_url: input.imageDataUrl! },
+          ],
+        }]
       : prompt;
 
-    const response = await client.responses.create({
-      model: process.env.OPENAI_MODEL?.trim() || "gpt-5.6-terra",
-      input: requestInput,
-      text: { format: { type: "json_schema", name: "nesevren_math_answer", strict: true, schema: answerSchema } },
-    });
+    try {
+      const response = await client.responses.create({
+        model,
+        input: requestInput,
+        text: { format: { type: "json_schema", name: "nesevren_math_answer", strict: true, schema: answerSchema } },
+      });
 
-    const output = response.output_text?.trim();
-    if (!output) throw new Error("OpenAI boş cevap döndürdü.");
-    return parseAnswer(output);
+      const output = response.output_text?.trim();
+      if (!output) throw new Error("OpenAI boş cevap döndürdü.");
+      return parseAnswer(output);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Bilinmeyen OpenAI hatası";
+      throw new Error(`${isImage ? "Görsel çözüm" : "Metin çözüm"} çağrısı başarısız: ${message}`);
+    }
   },
 };

@@ -21,26 +21,47 @@ function App() {
 
   async function submitQuestion() {
     const value = question.trim();
-    if (!value) {
-      setError(photoName ? "Fotoğraf hazır. Görselden soru okuma bağlantısı hazırlanıyor; şimdilik soruyu metin olarak da yazın." : "Lütfen önce matematik sorunuzu yazın.");
+    if (!value && !photoPreview) {
+      setError("Lütfen matematik sorunuzu yazın veya bir soru fotoğrafı seçin.");
       return;
     }
-    if (!API_URL) { setError("Neşevren API adresi yapılandırılmamış. Lütfen sistem yöneticisine bildirin."); return; }
-    setLoading(true); setError(""); setResult(null);
+    if (!API_URL) {
+      setError("Neşevren API adresi yapılandırılmamış. Lütfen sistem yöneticisine bildirin.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setResult(null);
+
     try {
+      const isImageQuestion = Boolean(photoPreview);
       const response = await fetch(`${API_URL}/api/v1/questions/analyze`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: value, inputType: "text", intent: "solve" }),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question: value,
+          inputType: isImageQuestion ? "image" : "text",
+          intent: "solve",
+          ...(isImageQuestion ? { imageDataUrl: photoPreview } : {}),
+        }),
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) throw new Error(data?.error?.message ?? `Soru çözme servisi ${response.status} hatası döndürdü.`);
       setResult(data as SolveResponse);
     } catch (requestError) {
-      setError(requestError instanceof TypeError ? "Neşevren API servisine bağlantı kurulamadı. Lütfen biraz sonra tekrar deneyin." : requestError instanceof Error ? requestError.message : "Beklenmeyen bir hata oluştu.");
-    } finally { setLoading(false); }
+      setError(requestError instanceof TypeError
+        ? "Neşevren API servisine bağlantı kurulamadı. Lütfen biraz sonra tekrar deneyin."
+        : requestError instanceof Error
+          ? requestError.message
+          : "Beklenmeyen bir hata oluştu.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function choosePhoto() { photoInput.current?.click(); }
+
   function onPhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -53,6 +74,7 @@ function App() {
     setCropSource(objectUrl);
     setLastCrop(undefined);
     setPhotoPreview("");
+    setResult(null);
     setError("");
     event.target.value = "";
   }
@@ -61,6 +83,7 @@ function App() {
     setPhotoPreview(dataUrl);
     setLastCrop(crop);
     setCropSource("");
+    setError("");
   }
 
   function editCropAgain() {
@@ -68,29 +91,40 @@ function App() {
   }
 
   return (
-    <main className="shell"><section className="hero">
-      <span className="eyebrow">Neşevren</span>
-      <h1>Matematiği sadece çözme.<br />Anla, öğren, geliş.</h1>
-      <p>Neşevren sorunu analiz eder, en uygun çalışan yapay zekâya yönlendirir ve mümkün olduğunda sonucu matematiksel olarak doğrular.</p>
-      <div className="questionBox">
-        <textarea value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Matematik sorunu yaz..." rows={4} />
-        {photoPreview && <div className="photoPreview"><img src={photoPreview} alt="Kırpılmış soru fotoğrafı" /><div className="photoPreviewFooter"><span>{photoName}</span><button type="button" className="secondary" onClick={editCropAgain}>✂️ Kırpmayı düzelt / büyüt</button></div></div>}
-        <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" onChange={onPhotoChange} style={{display:"none"}} />
-        <div className="actions">
-          <button type="button" onClick={submitQuestion} disabled={loading}>{loading ? "Çözülüyor..." : "🧠 Soruyu Çöz"}</button>
-          <button type="button" className="secondary" onClick={choosePhoto}>📷 Fotoğraf / Galeri</button>
-          <button type="button" className="secondary" disabled aria-label="Sesli anlatım">🎙️ Sesli anlatım</button>
+    <main className="shell">
+      <section className="hero">
+        <span className="eyebrow">Neşevren</span>
+        <h1>Matematiği sadece çözme.<br />Anla, öğren, geliş.</h1>
+        <p>Neşevren sorunu analiz eder, en uygun çalışan yapay zekâya yönlendirir ve mümkün olduğunda sonucu matematiksel olarak doğrular.</p>
+        <div className="questionBox">
+          <textarea value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Matematik sorunu yaz veya fotoğraf yükle..." rows={4} />
+          {photoPreview && (
+            <div className="photoPreview">
+              <img src={photoPreview} alt="Kırpılmış soru fotoğrafı" />
+              <div className="photoPreviewFooter">
+                <span>{photoName}</span>
+                <button type="button" className="secondary" onClick={editCropAgain}>✂️ Kırpmayı düzelt / büyüt</button>
+              </div>
+            </div>
+          )}
+          <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" onChange={onPhotoChange} style={{display:"none"}} />
+          <div className="actions">
+            <button type="button" onClick={submitQuestion} disabled={loading}>{loading ? "Fotoğraf okunuyor ve çözülüyor..." : "🧠 Soruyu Çöz"}</button>
+            <button type="button" className="secondary" onClick={choosePhoto}>📷 Fotoğraf / Galeri</button>
+            <button type="button" className="secondary" disabled aria-label="Sesli anlatım">🎙️ Sesli anlatım</button>
+          </div>
         </div>
-      </div>
-      {error && <div className="errorBox">{error}</div>}
-      {result && <SolutionResult result={result} />}
-    </section>
-    <section className="cards">
-      <article><strong>🎯 Soru Çöz</strong><span>Metinle sorunu gönder, çözüm ve doğrulama al.</span></article>
-      <article><strong>💡 İpucu Al</strong><span>Cevabı hemen vermeden adım adım yönlendirme altyapısı.</span></article>
-      <article><strong>📝 Test Hazırla</strong><span>Konu ve seviyene göre online veya PDF test altyapısı.</span></article>
-    </section>
-    {cropSource && <PhotoCropper src={cropSource} initialCrop={lastCrop} onCancel={() => setCropSource("")} onApply={applyCrop} />}
+        {error && <div className="errorBox">{error}</div>}
+        {result && <SolutionResult result={result} />}
+      </section>
+
+      <section className="cards">
+        <article><strong>🎯 Soru Çöz</strong><span>Metin veya fotoğrafla sorunu gönder, çözüm ve doğrulama al.</span></article>
+        <article><strong>💡 İpucu Al</strong><span>Cevabı hemen vermeden adım adım yönlendirme altyapısı.</span></article>
+        <article><strong>📝 Test Hazırla</strong><span>Konu ve seviyene göre online veya PDF test altyapısı.</span></article>
+      </section>
+
+      {cropSource && <PhotoCropper src={cropSource} initialCrop={lastCrop} onCancel={() => setCropSource("")} onApply={applyCrop} />}
     </main>
   );
 }

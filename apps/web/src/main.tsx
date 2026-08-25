@@ -5,7 +5,10 @@ import { SolutionResult } from "./SolutionResult";
 import type { SolveResponse } from "./types";
 import "./styles.css";
 
-const API_URL = (import.meta.env.VITE_API_URL ?? "").trim().replace(/\/+$/, "");
+const configuredApiUrl = (import.meta.env.VITE_API_URL ?? "").trim().replace(/\/+$/, "");
+const API_URL = !configuredApiUrl || configuredApiUrl === "https://nesevren-api.onrender.com"
+  ? "https://nesevren-api-v2.onrender.com"
+  : configuredApiUrl;
 
 function App() {
   const [question, setQuestion] = useState("");
@@ -23,10 +26,6 @@ function App() {
     const value = question.trim();
     if (!value && !photoPreview) {
       setError("Lütfen matematik sorunuzu yazın veya bir soru fotoğrafı seçin.");
-      return;
-    }
-    if (!API_URL) {
-      setError("Neşevren API adresi yapılandırılmamış. Lütfen sistem yöneticisine bildirin.");
       return;
     }
 

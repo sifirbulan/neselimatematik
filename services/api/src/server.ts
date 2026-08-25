@@ -6,7 +6,7 @@ import { ValidationError, validateQuestionRequest } from "./validation.js";
 const app = express();
 app.disable("x-powered-by");
 app.use(cors());
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "16mb" }));
 
 function healthPayload() {
   return {
@@ -17,43 +17,28 @@ function healthPayload() {
   };
 }
 
-app.get("/", (_req, res) => {
-  res.json(healthPayload());
-});
-
-app.get("/health", (_req, res) => {
-  res.json(healthPayload());
-});
+app.get("/", (_req, res) => res.json(healthPayload()));
+app.get("/health", (_req, res) => res.json(healthPayload()));
 
 app.post("/api/v1/questions/analyze", async (req, res) => {
   try {
     const input = validateQuestionRequest(req.body);
     const result = await orchestrateQuestion(input);
-
     return res.json({
       status: "completed",
-      question: input.question,
+      question: input.question || (input.inputType === "image" ? "Fotoğraftaki matematik sorusu" : ""),
       ...result,
       finalAnswer: result.answer,
-      next: result.answer?.verificationStatus === "verified"
-        ? "completed"
-        : "verification-pending",
+      next: result.answer?.verificationStatus === "verified" ? "completed" : "verification-pending",
     });
   } catch (error) {
     if (error instanceof ValidationError) {
-      return res.status(400).json({
-        error: { code: "VALIDATION_ERROR", message: error.message },
-      });
+      return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: error.message } });
     }
-
     const message = error instanceof Error ? error.message : "Beklenmeyen bir hata oluştu.";
     console.error("Neşevren provider error:", message);
-
     return res.status(502).json({
-      error: {
-        code: "AI_PROVIDER_ERROR",
-        message: "Yapay zekâ çözüm servisine şu anda ulaşılamıyor. Lütfen biraz sonra tekrar deneyin.",
-      },
+      error: { code: "AI_PROVIDER_ERROR", message: "Yapay zekâ çözüm servisine şu anda ulaşılamıyor. Lütfen biraz sonra tekrar deneyin." },
     });
   }
 });

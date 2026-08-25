@@ -24,7 +24,7 @@ export function PhotoCropper({
 }) {
   const [crop, setCrop] = useState<Crop>(initialCrop ?? DEFAULT_CROP);
   const [previewUrl, setPreviewUrl] = useState("");
-  const stageRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState>(null);
 
   useEffect(() => {
@@ -59,16 +59,21 @@ export function PhotoCropper({
 
   function onPointerMove(event: React.PointerEvent) {
     const drag = dragRef.current;
-    const stage = stageRef.current;
-    if (!drag || !stage) return;
-    const rect = stage.getBoundingClientRect();
+    const frame = frameRef.current;
+    if (!drag || !frame) return;
+
+    const rect = frame.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
     const dx = ((event.clientX - drag.startX) / rect.width) * 100;
     const dy = ((event.clientY - drag.startY) / rect.height) * 100;
     const original = drag.crop;
 
     if (drag.mode === "move") {
-      setCrop({ ...original, x: clamp(original.x + dx, 0, 100 - original.width), y: clamp(original.y + dy, 0, 100 - original.height) });
+      setCrop({
+        ...original,
+        x: clamp(original.x + dx, 0, 100 - original.width),
+        y: clamp(original.y + dy, 0, 100 - original.height),
+      });
       return;
     }
 
@@ -116,19 +121,45 @@ export function PhotoCropper({
           <strong>Fotoğrafı elinle kırp</strong>
           <span>Çerçeveyi ayarladıkça altta kalan bölüm büyütülmüş olarak görünür.</span>
         </div>
-        <div ref={stageRef} className="cropStage">
-          <img src={src} alt="Kırpılacak fotoğraf" draggable={false} />
-          <div className="cropBox" style={boxStyle} onPointerDown={(event) => startDrag(event, "move")} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag}>
-            {(["nw", "n", "ne", "e", "se", "s", "sw", "w"] as Mode[]).map((mode) => (
-              <span key={mode} className={`cropHandle cropHandle-${mode}`} onPointerDown={(event) => startDrag(event, mode)} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag} />
-            ))}
+
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", overflow: "hidden", borderRadius: 18, background: "#152728" }}>
+          <div
+            ref={frameRef}
+            style={{ position: "relative", display: "inline-block", maxWidth: "100%", lineHeight: 0, touchAction: "none", userSelect: "none" }}
+          >
+            <img
+              src={src}
+              alt="Kırpılacak fotoğraf"
+              draggable={false}
+              style={{ display: "block", maxWidth: "100%", maxHeight: "62vh", width: "auto", height: "auto", pointerEvents: "none", userSelect: "none" }}
+            />
+            <div
+              className="cropBox"
+              style={boxStyle}
+              onPointerDown={(event) => startDrag(event, "move")}
+              onPointerMove={onPointerMove}
+              onPointerUp={stopDrag}
+              onPointerCancel={stopDrag}
+            >
+              {(["nw", "n", "ne", "e", "se", "s", "sw", "w"] as Mode[]).map((mode) => (
+                <span
+                  key={mode}
+                  className={`cropHandle cropHandle-${mode}`}
+                  onPointerDown={(event) => startDrag(event, mode)}
+                  onPointerMove={onPointerMove}
+                  onPointerUp={stopDrag}
+                  onPointerCancel={stopDrag}
+                />
+              ))}
+            </div>
           </div>
         </div>
+
         <div className="cropLivePreview">
           <strong>Kırpınca kalacak bölüm</strong>
           {previewUrl && <img src={previewUrl} alt="Kırpma sonucu önizlemesi" />}
         </div>
-        <div className="cropHelp">Yanlış alan seçtiysen noktaları tekrar dışarı doğru sürükleyerek alanı büyütebilirsin.</div>
+        <div className="cropHelp">Alt önizleme ile beyaz çerçeve artık aynı alanı gösterir. Yanlış seçtiysen noktaları tekrar dışarı sürükleyerek alanı büyütebilirsin.</div>
         <div className="cropActions">
           <button type="button" className="secondary" onClick={onCancel}>Vazgeç</button>
           <button type="button" onClick={applyCrop}>✓ Kırpmayı uygula</button>

@@ -11,6 +11,7 @@ export interface StudentQuestion {
   intent: StudentIntent;
   grade?: number;
   exam?: ExamType;
+  imageDataUrl?: string;
 }
 
 export interface QuestionAnalysis {

@@ -59,7 +59,7 @@ export const openAIExecutor: ProviderExecutor = {
           role: "user" as const,
           content: [
             { type: "input_text" as const, text: prompt },
-            { type: "input_image" as const, image_url: input.imageDataUrl! },
+            { type: "input_image" as const, image_url: input.imageDataUrl!, detail: "high" as const },
           ],
         }]
       : prompt;

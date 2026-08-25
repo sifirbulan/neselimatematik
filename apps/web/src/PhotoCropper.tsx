@@ -70,13 +70,15 @@ export function PhotoCropper({ src, initialCrop, onCancel, onApply }: { src: str
 
   return <div className="cropOverlay" role="dialog" aria-modal="true" aria-label="Fotoğrafı kırp"><div className="cropDialog">
     <div className="cropHeader"><strong>Fotoğrafı elinle kırp</strong><span>Çerçevenin herhangi bir kenarını veya köşesini parmağınla sürükleyebilirsin.</span></div>
-    <div style={{display:"flex",justifyContent:"center",alignItems:"center",overflow:"hidden",borderRadius:18,background:"#152728"}}><div ref={frameRef} style={{position:"relative",display:"inline-block",maxWidth:"100%",lineHeight:0,touchAction:"none",userSelect:"none"}}>
-      <img src={src} alt="Kırpılacak fotoğraf" draggable={false} style={{display:"block",maxWidth:"100%",maxHeight:"62vh",width:"auto",height:"auto",pointerEvents:"none",userSelect:"none"}} />
-      <div className="cropBox" style={boxStyle} onPointerDown={(e)=>startDrag(e,"move")} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag}>
-        {edges.map(({mode,style})=><span key={`edge-${mode}`} aria-hidden="true" style={{position:"absolute",zIndex:4,touchAction:"none",...style}} onPointerDown={(e)=>startDrag(e,mode)} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag}/>)}
-        {(["nw","n","ne","e","se","s","sw","w"] as Mode[]).map(mode=><span key={mode} className={`cropHandle cropHandle-${mode}`} onPointerDown={(e)=>startDrag(e,mode)} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag}/>) }
+    <div style={{display:"flex",justifyContent:"center",alignItems:"center",width:"100%",overflow:"hidden",borderRadius:18,background:"transparent"}}>
+      <div ref={frameRef} style={{position:"relative",display:"block",width:"100%",lineHeight:0,touchAction:"none",userSelect:"none"}}>
+        <img src={src} alt="Kırpılacak fotoğraf" draggable={false} style={{display:"block",width:"100%",height:"auto",maxHeight:"72vh",objectFit:"contain",pointerEvents:"none",userSelect:"none"}} />
+        <div className="cropBox" style={boxStyle} onPointerDown={(e)=>startDrag(e,"move")} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag}>
+          {edges.map(({mode,style})=><span key={`edge-${mode}`} aria-hidden="true" style={{position:"absolute",zIndex:4,touchAction:"none",...style}} onPointerDown={(e)=>startDrag(e,mode)} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag}/>)}
+          {(["nw","n","ne","e","se","s","sw","w"] as Mode[]).map(mode=><span key={mode} className={`cropHandle cropHandle-${mode}`} onPointerDown={(e)=>startDrag(e,mode)} onPointerMove={onPointerMove} onPointerUp={stopDrag} onPointerCancel={stopDrag}/>) }
+        </div>
       </div>
-    </div></div>
+    </div>
     <div className="cropLivePreview"><strong>Kırpınca kalacak bölüm</strong>{previewUrl && <img src={previewUrl} alt="Kırpma sonucu önizlemesi" />}</div>
     <div className="cropHelp">Beyaz dikdörtgenin dört çizgisinin herhangi bir yerinden tutup sürükleyebilirsin. Köşeler de çalışmaya devam eder.</div>
     <div className="cropActions"><button type="button" className="secondary" onClick={onCancel}>Vazgeç</button><button type="button" onClick={applyCrop}>✓ Kırpmayı uygula</button></div>

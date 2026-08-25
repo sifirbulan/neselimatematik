@@ -14,6 +14,7 @@ function healthPayload() {
     status: "ok",
     openAIConfigured: Boolean(process.env.OPENAI_API_KEY?.trim()),
     model: process.env.OPENAI_MODEL?.trim() || "gpt-5.6-terra",
+    visionModel: process.env.OPENAI_VISION_MODEL?.trim() || "gpt-5.6",
   };
 }
 
@@ -21,8 +22,10 @@ app.get("/", (_req, res) => res.json(healthPayload()));
 app.get("/health", (_req, res) => res.json(healthPayload()));
 
 app.post("/api/v1/questions/analyze", async (req, res) => {
+  let isImageRequest = false;
   try {
     const input = validateQuestionRequest(req.body);
+    isImageRequest = input.inputType === "image";
     const result = await orchestrateQuestion(input);
     return res.json({
       status: "completed",
@@ -35,10 +38,17 @@ app.post("/api/v1/questions/analyze", async (req, res) => {
     if (error instanceof ValidationError) {
       return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: error.message } });
     }
-    const message = error instanceof Error ? error.message : "Beklenmeyen bir hata oluştu.";
-    console.error("Neşevren provider error:", message);
+
+    const detail = error instanceof Error ? error.message : "Beklenmeyen bir hata oluştu.";
+    console.error("Neşevren provider error:", detail);
     return res.status(502).json({
-      error: { code: "AI_PROVIDER_ERROR", message: "Yapay zekâ çözüm servisine şu anda ulaşılamıyor. Lütfen biraz sonra tekrar deneyin." },
+      error: {
+        code: isImageRequest ? "VISION_PROVIDER_ERROR" : "AI_PROVIDER_ERROR",
+        message: isImageRequest
+          ? "Fotoğraf yapay zekâ tarafından okunamadı. Lütfen tekrar deneyin."
+          : "Yapay zekâ çözüm servisine şu anda ulaşılamıyor. Lütfen biraz sonra tekrar deneyin.",
+        detail,
+      },
     });
   }
 });

@@ -2,6 +2,7 @@ import { analyzeQuestion } from "./analyzer.js";
 import { compareAttempts } from "./consensus.js";
 import { chooseExecutionPolicy } from "./execution-policy.js";
 import { getExecutor, getRegisteredProviderIds, registerExecutor } from "./executor.js";
+import { geminiExecutor } from "./gemini-executor.js";
 import { mathEngineExecutor } from "./math-engine-executor.js";
 import { openAIExecutor } from "./openai-executor.js";
 import { verifyAnswer } from "./verifier.js";
@@ -9,6 +10,7 @@ import type { AIAnswer, OrchestratorResult, ProviderAttempt, StudentQuestion } f
 
 registerExecutor(mathEngineExecutor);
 registerExecutor(openAIExecutor);
+registerExecutor(geminiExecutor);
 
 async function runProvider(
   providerId: string,

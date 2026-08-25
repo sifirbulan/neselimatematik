@@ -29,8 +29,8 @@ p { color: var(--muted); line-height: 1.65; }
 .questionBox { margin-top: 28px; padding: 18px; border: 1px solid var(--border); border-radius: 22px; background: #fbfdfd; }
 .questionBox textarea { width: 100%; min-height: 130px; resize: vertical; border: 0; outline: none; background: transparent; color: #173637; font-size: 16px; line-height: 1.55; }
 .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-.actions button { border-radius: 14px; padding: 13px 18px; background: linear-gradient(135deg, var(--brand-dark), var(--brand)); color: white; font-weight: 800; }
-.actions button.secondary { background: var(--brand-soft); color: var(--brand); }
+.actions button, .cropActions button, .photoPreviewFooter button { border-radius: 14px; padding: 13px 18px; background: linear-gradient(135deg, var(--brand-dark), var(--brand)); color: white; font-weight: 800; }
+.actions button.secondary, .cropActions button.secondary, .photoPreviewFooter button.secondary { background: var(--brand-soft); color: var(--brand); }
 .errorBox { margin-top: 18px; padding: 15px 17px; border: 1px solid #efcaca; border-radius: 15px; background: #fff2f2; color: var(--error); font-weight: 700; }
 .solutionCard { margin-top: 24px; padding: 24px; border: 1px solid var(--border); border-radius: 24px; background: white; box-shadow: 0 12px 32px rgba(6,63,64,.07); }
 .solutionHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
@@ -50,6 +50,21 @@ p { color: var(--muted); line-height: 1.65; }
 article { padding: 22px; border: 1px solid var(--border); border-radius: 20px; background: white; display: grid; gap: 8px; box-shadow: 0 7px 22px rgba(6,63,64,.04); }
 article strong { color: var(--brand-dark); }
 article span { color: var(--muted); line-height: 1.5; font-size: 13px; }
+.photoPreview { margin-top: 14px; padding: 12px; border: 1px solid var(--border); border-radius: 18px; background: white; }
+.photoPreview img { display: block; width: 100%; max-height: 320px; object-fit: contain; border-radius: 14px; background: #eef5f4; }
+.photoPreviewFooter { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; color: var(--muted); font-size: 12px; }
+.cropOverlay { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 14px; background: rgba(2, 23, 24, .78); }
+.cropDialog { width: min(720px, 100%); max-height: 94vh; overflow: auto; padding: 18px; border-radius: 24px; background: white; box-shadow: 0 30px 90px rgba(0,0,0,.35); }
+.cropHeader { display: grid; gap: 3px; margin-bottom: 12px; }
+.cropHeader strong { color: var(--brand-dark); font-size: 20px; }
+.cropHeader span { color: var(--muted); font-size: 13px; }
+.cropStage { position: relative; overflow: hidden; border-radius: 18px; background: #152728; }
+.cropStage img { display: block; width: 100%; max-height: 58vh; object-fit: contain; }
+.cropBox { position: absolute; border: 3px solid #fff; box-shadow: 0 0 0 9999px rgba(0,0,0,.5); pointer-events: none; }
+.cropControls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-top: 14px; }
+.cropControls label { display: grid; gap: 5px; color: var(--brand-dark); font-size: 12px; font-weight: 800; }
+.cropControls input[type="range"] { width: 100%; accent-color: var(--brand); }
+.cropActions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
 @media (max-width: 760px) {
   .shell { padding: 18px 12px 70px; }
   .hero { padding: 26px 18px; border-radius: 24px; }
@@ -57,4 +72,8 @@ article span { color: var(--muted); line-height: 1.5; font-size: 13px; }
   .cards { grid-template-columns: 1fr; }
   .solutionHeader { flex-direction: column; }
   .verificationBadge { align-self: flex-start; }
+  .cropControls { grid-template-columns: 1fr; }
+  .photoPreviewFooter { align-items: stretch; flex-direction: column; }
+  .cropActions { flex-direction: column-reverse; }
+  .cropActions button { width: 100%; }
 }

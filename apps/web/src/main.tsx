@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { PhotoCropper } from "./PhotoCropper";
 import { SolutionResult } from "./SolutionResult";
 import type { SolveResponse } from "./types";
 import "./styles.css";
@@ -13,12 +14,13 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [photoName, setPhotoName] = useState("");
   const [photoPreview, setPhotoPreview] = useState("");
+  const [cropSource, setCropSource] = useState("");
   const photoInput = useRef<HTMLInputElement>(null);
 
   async function submitQuestion() {
     const value = question.trim();
     if (!value) {
-      setError(photoName ? "Fotoğraf seçildi. Görselden soru okuma bağlantısı hazırlanıyor; şimdilik soruyu metin olarak da yazın." : "Lütfen önce matematik sorunuzu yazın.");
+      setError(photoName ? "Fotoğraf hazır. Görselden soru okuma bağlantısı hazırlanıyor; şimdilik soruyu metin olarak da yazın." : "Lütfen önce matematik sorunuzu yazın.");
       return;
     }
     if (!API_URL) { setError("Neşevren API adresi yapılandırılmamış. Lütfen sistem yöneticisine bildirin."); return; }
@@ -42,9 +44,18 @@ function App() {
     if (!file) return;
     if (!file.type.startsWith("image/")) { setError("Lütfen galeriden veya dosyalardan bir fotoğraf seçin."); return; }
     if (file.size > 8 * 1024 * 1024) { setError("Fotoğraf en fazla 8 MB olabilir."); return; }
-    if (photoPreview) URL.revokeObjectURL(photoPreview);
-    setPhotoName(file.name); setPhotoPreview(URL.createObjectURL(file)); setError("");
+    if (cropSource.startsWith("blob:")) URL.revokeObjectURL(cropSource);
+    const objectUrl = URL.createObjectURL(file);
+    setPhotoName(file.name);
+    setCropSource(objectUrl);
+    setError("");
     event.target.value = "";
+  }
+
+  function applyCrop(dataUrl: string) {
+    if (cropSource.startsWith("blob:")) URL.revokeObjectURL(cropSource);
+    setPhotoPreview(dataUrl);
+    setCropSource("");
   }
 
   return (
@@ -54,7 +65,7 @@ function App() {
       <p>Neşevren sorunu analiz eder, en uygun çalışan yapay zekâya yönlendirir ve mümkün olduğunda sonucu matematiksel olarak doğrular.</p>
       <div className="questionBox">
         <textarea value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Matematik sorunu yaz..." rows={4} />
-        {photoPreview && <div><img src={photoPreview} alt="Seçilen soru fotoğrafı" style={{maxWidth:"100%",maxHeight:260,borderRadius:18}} /><div>{photoName}</div></div>}
+        {photoPreview && <div className="photoPreview"><img src={photoPreview} alt="Kırpılmış soru fotoğrafı" /><div className="photoPreviewFooter"><span>{photoName}</span><button type="button" className="secondary" onClick={() => setCropSource(photoPreview)}>✂️ Yeniden kırp</button></div></div>}
         <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" onChange={onPhotoChange} style={{display:"none"}} />
         <div className="actions">
           <button type="button" onClick={submitQuestion} disabled={loading}>{loading ? "Çözülüyor..." : "🧠 Soruyu Çöz"}</button>
@@ -69,7 +80,9 @@ function App() {
       <article><strong>🎯 Soru Çöz</strong><span>Metinle sorunu gönder, çözüm ve doğrulama al.</span></article>
       <article><strong>💡 İpucu Al</strong><span>Cevabı hemen vermeden adım adım yönlendirme altyapısı.</span></article>
       <article><strong>📝 Test Hazırla</strong><span>Konu ve seviyene göre online veya PDF test altyapısı.</span></article>
-    </section></main>
+    </section>
+    {cropSource && <PhotoCropper src={cropSource} onCancel={() => setCropSource("")} onApply={applyCrop} />}
+    </main>
   );
 }
 

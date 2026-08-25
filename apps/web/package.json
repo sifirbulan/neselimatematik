@@ -1,12 +1,13 @@
 {
-  "name": "@neseli-matematik/web",
+  "name": "@nesevren/web",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "test": "vitest run"
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
@@ -16,6 +17,8 @@
     "react-dom": "latest"
   },
   "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
     "vitest": "latest"
   }
 }

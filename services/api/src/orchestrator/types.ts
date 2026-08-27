@@ -24,6 +24,14 @@ export interface QuestionAnalysis {
   confidence: number;
 }
 
+export interface GeometryPoint { label:string; x:number; y:number; }
+export interface GeometrySegment { from:string; to:string; label?:string; }
+export interface GeometryAngle { at:string; label?:string; }
+export interface GeometryCircle { center:string; through?:string; radius?:number; label?:string; }
+export type VisualizationSpec =
+  | { type:"function"|"integral"; title?:string; expression:string; xMin?:number; xMax?:number; lower?:number; upper?:number; }
+  | { type:"geometry"; title?:string; points:GeometryPoint[]; segments:GeometrySegment[]; angles:GeometryAngle[]; circles:GeometryCircle[]; };
+
 export interface AIAnswer {
   answer: string;
   explanation: string;
@@ -31,6 +39,7 @@ export interface AIAnswer {
   hint?: string;
   detectedSubject?: string;
   detectedTopic?: string;
+  visualization?: VisualizationSpec;
   verified: boolean;
   verificationStatus: VerificationStatus;
   confidence: number;

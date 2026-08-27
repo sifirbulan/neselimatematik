@@ -10,6 +10,7 @@
 .appHero>.teacherStrip{order:7}
 .appHero>.historyStrip{order:8}
 .appHero>.thinking,.appHero>.errorBox,.appHero>.solutionCard,.appHero>.smartResult,.appHero>.practiceSet{order:9}
+.questionBox .composerActions>.attachButton{display:none!important}
 .composerActions{justify-content:flex-end!important;gap:9px!important;flex-wrap:wrap}
 .composerInlineTools{display:flex;align-items:center;gap:8px;margin-right:auto}
 .composerToolButton{display:inline-flex;align-items:center;gap:6px;padding:10px 12px;border-radius:12px;background:#eaf7f5;color:#0b6668;font-weight:800}

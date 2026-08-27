@@ -10,10 +10,20 @@ function detectExam(text: string): ExamType {
   return "NONE";
 }
 
+function contentOnly(text: string): string {
+  return text
+    .replace(/Kullanıcının seçtiği ders:[^.\n]*\.?/gi, " ")
+    .replace(/Bu seçim yalnızca bir ipucudur ve yanlış olabilir\.?/gi, " ")
+    .replace(/Kullanıcı ders seçmedi\.?/gi, " ")
+    .replace(/Her durumda sorunun gerçek dersini[\s\S]*?gerçek dersi esas al\.?/gi, " ")
+    .replace(/Örneğin kullanıcı Kimya seçip matematik sorusu gönderirse bunu Matematik olarak çöz\.?/gi, " ")
+    .replace(/Öğrencinin seviyesine uygun, kavramsal anlamayı ve çözüm mantığını öne çıkaran açık ve öğretici bir anlatım kullan\.?/gi, " ")
+    .trim();
+}
+
 function detectTopic(text: string): { topic: string; subtopic: string } {
-  const value = text.toLocaleLowerCase("tr-TR");
-  const explicit = /ders:\s*([^\.\n]+)/i.exec(text)?.[1]?.trim();
-  if (explicit && explicit.toLocaleLowerCase("tr-TR") !== "otomatik") return { topic: explicit, subtopic: "Genel" };
+  const clean = contentOnly(text);
+  const value = clean.toLocaleLowerCase("tr-TR");
 
   if (/\b(english|ingilizce|grammar|vocabulary|tense|passive voice|relative clause)\b/i.test(value)) return { topic: "İngilizce", subtopic: "Dil Becerileri" };
   if (/\b(kürtçe|kurmanc[iî]|zazak[iî]|soran[iî]|kurdî|kurdçe)\b/i.test(value)) return { topic: "Kürtçe", subtopic: "Dil Becerileri" };
@@ -30,17 +40,18 @@ function detectTopic(text: string): { topic: string; subtopic: string } {
   if (value.includes("integral")) return { topic: "Matematik", subtopic: "İntegral" };
   if (value.includes("limit")) return { topic: "Matematik", subtopic: "Limit" };
   if (value.includes("üçgen") || value.includes("ucgen") || value.includes("geometri")) return { topic: "Matematik", subtopic: "Geometri" };
-  if (value.includes("denklem") || /[a-z]\s*[+\-*/=]/i.test(text)) return { topic: "Matematik", subtopic: "Denklemler" };
+  if (value.includes("denklem") || /[a-z]\s*[+\-*/=]/i.test(clean)) return { topic: "Matematik", subtopic: "Denklemler" };
   if (value.includes("olasılık") || value.includes("olasilik")) return { topic: "Matematik", subtopic: "Olasılık" };
-  if (/\d/.test(text) && /[+\-*/=<>]/.test(text)) return { topic: "Matematik", subtopic: "Genel" };
+  if (/\d/.test(clean) && /[+\-*/=<>]/.test(clean)) return { topic: "Matematik", subtopic: "Genel" };
   return { topic: "Genel", subtopic: "Ders AI tarafından belirlenecek" };
 }
 
 export function analyzeQuestion(input: StudentQuestion): QuestionAnalysis {
   const question = input.question.trim();
   const { topic, subtopic } = detectTopic(question);
-  const exam = input.exam && input.exam !== "NONE" ? input.exam : detectExam(question);
-  const difficulty = question.length > 320 ? "hard" : question.length > 140 ? "medium" : question ? "easy" : "unknown";
+  const exam = input.exam && input.exam !== "NONE" ? input.exam : detectExam(contentOnly(question));
+  const cleanLength = contentOnly(question).length;
+  const difficulty = cleanLength > 320 ? "hard" : cleanLength > 140 ? "medium" : cleanLength ? "easy" : "unknown";
 
   return {
     topic,
@@ -49,6 +60,6 @@ export function analyzeQuestion(input: StudentQuestion): QuestionAnalysis {
     difficulty,
     needsVision: input.inputType === "image",
     needsVerification: topic === "Matematik",
-    confidence: difficulty === "hard" ? 0.58 : 0.76,
+    confidence: topic === "Genel" ? 0.5 : difficulty === "hard" ? 0.58 : 0.78,
   };
 }

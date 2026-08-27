@@ -4,6 +4,7 @@ import { PhotoCropper, type Crop } from "./PhotoCropper";
 import { SolutionResult } from "./SolutionResult";
 import type { SolveResponse } from "./types";
 import "./styles.css";
+import "./hint.css";
 
 const configuredApiUrl = (import.meta.env.VITE_API_URL ?? "").trim().replace(/\/+$/, "");
 const API_URL = !configuredApiUrl || configuredApiUrl === "https://nesevren-api.onrender.com" ? "https://nesevren-api-v2.onrender.com" : configuredApiUrl;
@@ -78,13 +79,11 @@ function App() {
     <section className="hero appHero">
       <header className="appTopbar"><div className="brandMark"><span className="brandOrb">N</span><div><strong>Neş'eli Matematik</strong><small>Neşevren • Matematik Asistanı</small></div></div><span className="aiStatus">● AI hazır</span></header>
       <div className="welcome"><span className="eyebrow">NEŞEVREN</span><h1>Bugün hangi soruyu<br/>çözelim?</h1><p>Fotoğrafını çek, sorunu yaz veya sesli anlat. Neşevren sana sadece cevabı değil, çözüm yolunu da anlatsın.</p></div>
-
       <div className="quickActions">
         <button className="quickAction primaryQuick" onClick={choosePhoto}><span>📷</span><strong>Fotoğrafla Sor</strong><small>Soruyu çek veya galeriden seç</small></button>
         <button className="quickAction" onClick={()=>questionInput.current?.focus()}><span>✍️</span><strong>Soruyu Yaz</strong><small>Matematik sorunu metin olarak gir</small></button>
         <button className="quickAction" disabled><span>🎙️</span><strong>Sesli Sor</strong><small>Yakında</small></button>
       </div>
-
       <div className="questionBox modernQuestionBox">
         <div className="composerTitle"><strong>✦ Neşevren'e sor</strong><span>Matematik</span></div>
         <textarea ref={questionInput} value={question} onChange={e=>setQuestion(e.target.value)} placeholder="Sorunu buraya yazabilirsin..." rows={4}/>
@@ -98,13 +97,11 @@ function App() {
       {hintText&&<div id="hint-result" className="aiHintCard"><div className="aiHintIcon">💡</div><div><span>İPUCU AI</span><strong>Cevabı vermeden küçük bir yönlendirme</strong><p>{hintText}</p></div></div>}
       {result&&<SolutionResult result={result}/>} 
     </section>
-
     <section className="cards featureCards">
       <button className="featureAction" type="button" onClick={requestHint} disabled={loading||hintLoading}><span className="featureIcon">💡</span><strong>{hintLoading?"Hazırlanıyor…":"İpucu Al"}</strong><span>Cevabı görmeden doğru adıma yönel.</span></button>
       <button className="featureAction" type="button" disabled><span className="featureIcon">📝</span><strong>Benzer Soru</strong><span>Öğrendiğini yeni bir soruyla pekiştir.</span></button>
       <button className="featureAction" type="button" disabled><span className="featureIcon">✓</span><strong>Doğrula</strong><span>Çözümünü matematiksel olarak kontrol et.</span></button>
     </section>
-
     <nav className="bottomNav"><button className="active">⌂<small>Ana Sayfa</small></button><button onClick={choosePhoto}>▣<small>Soru Sor</small></button><button disabled>▤<small>Dersler</small></button><button disabled>○<small>Profil</small></button></nav>
     {cropSource&&<PhotoCropper src={cropSource} initialCrop={lastCrop} onCancel={()=>setCropSource("")} onApply={applyCrop}/>} 
   </main>;

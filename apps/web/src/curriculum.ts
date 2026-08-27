@@ -46,7 +46,7 @@ const curriculum:Record<string,Record<string,string[]>>={
     "6":["Genel Tarama","Birlikte Yaşamak","Evimiz Dünya","Ortak Mirasımız","Yaşayan Demokrasimiz","Hayatımızdaki Ekonomi","Teknoloji ve Sosyal Bilimler"],
     "7":["Genel Tarama","Birlikte Yaşamak","Evimiz Dünya","Ortak Mirasımız","Yaşayan Demokrasimiz","Hayatımızdaki Ekonomi","Teknoloji ve Sosyal Bilimler"]
   },
-  Fizik:{"9":["Genel Tarama","Fizik Bilimi ve Kariyer Keşfi","Kuvvet ve Hareket","Akışkanlar","Enerji"],"10":["Genel Tarama","Kuvvet ve Hareket","Enerji","Elektrik","Dalgalar"],"11":["Genel Tarama","Kuvvet ve Hareket","Elektrik ve Manyetizma","Dalgalar ve Optik","Modern Fizik"],"12":["Genel Tarama","Çembersel Hareket","Basit Harmonik Hareket","Dalga Mekaniği","Atom Fiziği","Modern Fizik"]},
+  Fizik:{"9":["Genel Tarama","Fizik Bilimi ve Kariyer Keşfi","Kuvvet ve Hareket","Akışkanlar","Enerji"],"10":["Genel Tarama","Kuvvet ve Hareket","Enerji","Elektrik","Dalgalar"],"11":["Genel Tarama","Kuvvet ve Hareket","Elektrik ve Manyetizma","Optik"],"12":["Genel Tarama","Kuvvet ve Hareket","Enerji","Dalgalar","Madde ve Doğası"]},
   Kimya:{"9":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],"10":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],"11":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],"12":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"]},
   Biyoloji:{"9":["Genel Tarama","Yaşam","Organizasyon"],"10":["Genel Tarama","Enerji","Ekoloji"],"11":["Genel Tarama","Tepki","Homeostazi"],"12":["Genel Tarama","Üreme","Gen"]},
   Coğrafya:{"9":commonHighSchoolGeography,"10":commonHighSchoolGeography,"11":commonHighSchoolGeography,"12":commonHighSchoolGeography},

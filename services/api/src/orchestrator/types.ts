@@ -29,6 +29,8 @@ export interface AIAnswer {
   explanation: string;
   steps: string[];
   hint?: string;
+  detectedSubject?: string;
+  detectedTopic?: string;
   verified: boolean;
   verificationStatus: VerificationStatus;
   confidence: number;

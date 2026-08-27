@@ -13,8 +13,12 @@
 .questionBox .composerActions>.attachButton{display:none!important}
 .composerActions{justify-content:flex-end!important;gap:9px!important;flex-wrap:wrap}
 .composerInlineTools{display:flex;align-items:center;gap:8px;margin-right:auto}
-.composerToolButton{display:inline-flex;align-items:center;gap:6px;padding:10px 12px;border-radius:12px;background:#eaf7f5;color:#0b6668;font-weight:800}
+.composerToolButton{display:inline-flex;align-items:center;gap:6px;padding:10px 12px;border-radius:12px;background:#eaf7f5;color:#0b6668;font-weight:800;transition:transform .15s ease,box-shadow .15s ease,background .15s ease}
 .composerToolButton span{font-size:17px}.composerToolButton b{font-size:12px}
+.composerVoiceButton.voiceListening{background:#fee2e2;color:#b91c1c;box-shadow:0 0 0 3px rgba(185,28,28,.12)}
+.composerVoiceButton.voiceListening span{animation:voicePulse 1s infinite}
+.composerVoiceButton.voicePaused{background:#fff7ed;color:#9a3412}
+@keyframes voicePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.18);opacity:.7}}
 .bottomNav button:nth-child(3){display:none!important}
 .bottomNav{grid-template-columns:repeat(3,1fr)!important}
 @media(max-width:760px){.appHero>.questionBox{margin-top:8px}.composerActions{gap:7px!important}.composerInlineTools{gap:6px}.composerToolButton{padding:10px}.composerToolButton b{font-size:11px}.solveButton{margin-left:0}}

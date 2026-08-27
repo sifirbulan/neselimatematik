@@ -2,11 +2,7 @@
 .appHero>*{order:20}
 .appHero>.appTopbar{order:0}
 .appHero>.questionBox{order:1;margin-top:18px}
-.appHero>.questionBox .attachButton{display:none}
-.appHero>.questionBox .composerActions{justify-content:flex-end}
-.appHero>.quickActions{order:2;display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}
-.appHero>.quickActions .quickAction{grid-column:auto;min-height:92px}
-.appHero>.quickActions .quickAction:nth-child(2){display:none}
+.appHero>.quickActions{display:none!important}
 .appHero>.aiHero{order:3}
 .appHero>.subjectAssist{order:4}
 .appHero>.smartActions{order:5}
@@ -14,4 +10,8 @@
 .appHero>.teacherStrip{order:7}
 .appHero>.historyStrip{order:8}
 .appHero>.thinking,.appHero>.errorBox,.appHero>.solutionCard,.appHero>.smartResult,.appHero>.practiceSet{order:9}
-@media(max-width:760px){.appHero>.questionBox{margin-top:14px}.appHero>.quickActions{grid-template-columns:1fr 1fr}.appHero>.quickActions .quickAction{min-height:84px;padding:14px}.appHero>.aiHero{padding-top:18px}}
+.composerActions{justify-content:flex-end!important;gap:9px!important;flex-wrap:wrap}
+.composerInlineTools{display:flex;align-items:center;gap:8px;margin-right:auto}
+.composerToolButton{display:inline-flex;align-items:center;gap:6px;padding:10px 12px;border-radius:12px;background:#eaf7f5;color:#0b6668;font-weight:800}
+.composerToolButton span{font-size:17px}.composerToolButton b{font-size:12px}
+@media(max-width:760px){.appHero>.questionBox{margin-top:14px}.appHero>.aiHero{padding-top:18px}.composerActions{gap:7px!important}.composerInlineTools{gap:6px}.composerToolButton{padding:10px}.composerToolButton b{font-size:11px}.solveButton{margin-left:0}}

@@ -11,6 +11,7 @@
 .appHero>.teacherStrip{order:5}
 .appHero>.historyStrip{order:6}
 .appHero>.smartResult,.appHero>.practiceSet{order:7}
+.questionBox .composerTitle>span{display:none!important}
 .questionBox .composerActions>.attachButton{display:none!important}
 .composerActions{justify-content:flex-end!important;gap:9px!important;flex-wrap:wrap}
 .composerInlineTools{display:flex;align-items:center;gap:8px;margin-right:auto}

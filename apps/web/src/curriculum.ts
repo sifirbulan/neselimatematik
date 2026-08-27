@@ -32,8 +32,8 @@ const curriculum:Record<string,Record<string,string[]>>={
     "8":["Genel Tarama","İletişim ve Sosyal İlişkiler","Vatan Sevgisi","Doğa ve İnsan","Türk Hikâye Geleneği ve Destanları","Sanat ve Estetik","Akademik Düşünme Dünyası"]
   },
   "Fen Bilimleri":{
-    "3":["Genel Tarama","Dünya ve Evren","Canlılar ve Yaşam","Fiziksel Olaylar","Madde ve Doğası","Sürdürülebilir Yaşam"],
-    "4":["Genel Tarama","Dünya ve Evren","Canlılar ve Yaşam","Fiziksel Olaylar","Madde ve Doğası","Sürdürülebilir Yaşam"],
+    "3":["Genel Tarama","Bilimsel Keşif Yolculuğu","Canlılar Dünyasına Yolculuk","Yer Bilimciler İş Başında","Maddeyi Tanıyalım, Karıştırıp Ayıralım","Hareketi Keşfediyorum","Yaşamımızı Kolaylaştıran Elektrik","Toprağı Tanıyorum, Tarımı Keşfediyorum","Canlıların Yaşam Alanlarına Yolculuk"],
+    "4":["Genel Tarama","Bilime Yolculuk","Sağlıklı Besleniyorum","Dünya’mızı Keşfedelim","Maddenin Değişimi","Mıknatısı Keşfediyorum","Elektrik ve Enerji Kaynakları","Işığı Tanıyalım","Sürdürülebilir Yaşam Alanları"],
     "5":["Genel Tarama","Gökyüzündeki Komşularımız ve Biz","Kuvveti Tanıyalım","Canlıların Yapısına Yolculuk","Işığın Dünyası","Maddenin Doğası","Elektrik Devre Elemanları","Sürdürülebilir Yaşam ve Geri Dönüşüm"],
     "6":["Genel Tarama","Güneş Sistemi ve Tutulmalar","Kuvvetin Etkisinde Hareket","Canlılarda Sistemler","Işığın Yansıması ve Renkler","Maddenin Ayırt Edici Özellikleri","Elektriğin İletimi ve Direnç","Sürdürülebilir Yaşam ve Etkileşim"],
     "7":["Genel Tarama","Dünya ve Evren","Kuvvet ve Enerji","Canlılarda Yapı ve Sistemler","Işık","Madde","Elektrik","Sürdürülebilir Yaşam"],
@@ -52,7 +52,7 @@ const curriculum:Record<string,Record<string,string[]>>={
   Tarih:{"9":["Genel Tarama","Geçmişin İnşa Sürecinde Tarih","Eski Çağ Medeniyetleri","Orta Çağ Medeniyetleri"],"10":["Genel Tarama","Türkistan’dan Türkiye’ye (1040-1299)","Beylikten Devlete Osmanlı (1299-1453)","Cihan Devleti Osmanlı (1453-1683)"],"11":["Genel Tarama","Değişen Dünyada Osmanlı Devleti (1683-1789)","Dönüşüm Sürecinde Osmanlı (1789-1908)","Savaşlar Sarmalında Osmanlı (1908-1918)"],"12":["Genel Tarama","20. Yüzyıl Başlarında Osmanlı Devleti ve Dünya","Millî Mücadele","Atatürkçülük ve Türk İnkılabı","İki Savaş Arasındaki Dönemde Türkiye ve Dünya","II. Dünya Savaşı Sürecinde Türkiye ve Dünya","II. Dünya Savaşı Sonrasında Türkiye ve Dünya"]},
   "Türk Dili ve Edebiyatı":{"9":["Genel Tarama","Sözün İnceliği","Anlam Arayışı","Anlamın Yapı Taşları","Dilin Zenginliği"],"10":["Genel Tarama","Edebî Metinleri Anlama","Şiir","Hikâye ve Roman","Tiyatro","Öğretici Metinler"],"11":["Genel Tarama","Şiir","Öykü ve Roman","Tiyatro","Makale ve Deneme","Edebiyat Dönemleri"],"12":["Genel Tarama","Cumhuriyet Dönemi Şiiri","Roman ve Hikâye","Tiyatro","Deneme ve Söyleşi","Dünya Edebiyatı"]},
   Felsefe:{"10":["Genel Tarama","Felsefenin Doğası","Felsefe, Mantık ve Argümantasyon","Varlık Felsefesi","Bilgi Felsefesi","Ahlak Felsefesi","Estetik ve Sanat Felsefesi","Siyaset Felsefesi","Din Felsefesi","Bilim Felsefesi"],"11":["Genel Tarama","Felsefi Düşüncenin Tarihsel Gelişimi","Bilgi ve Varlık","Ahlak, Siyaset ve Din","Bilim ve Sanat"]},
-  İngilizce:Object.fromEntries(gradeLevels.map(g=>[g,englishSkills])),
+  İngilizce:{"2":englishSkills,"3":englishSkills,"4":englishSkills,"5":englishSkills,"6":englishSkills,"7":englishSkills,"8":englishSkills,"9":englishSkills,"10":englishSkills,"11":englishSkills,"12":englishSkills},
   Kürtçe:Object.fromEntries(gradeLevels.map(g=>[g,kurdishSkills]))
 };
 

@@ -3,6 +3,7 @@ export const gradeLevels=["1","2","3","4","5","6","7","8","9","10","11","12","Me
 const commonHighSchoolGeography=["Genel Tarama","Coğrafyanın Doğası","Mekânsal Bilgi Teknolojileri","Doğal Sistemler ve Süreçler","Beşerî Sistemler ve Süreçler","Ekonomik Faaliyetler ve Etkileri","Afetler ve Sürdürülebilir Çevre","Bölgeler, Ülkeler ve Küresel Bağlantılar"];
 const englishSkills=["Genel Tarama","Listening","Speaking","Reading","Writing","Vocabulary and Language Use"];
 const kurdishSkills=["Genel Tarama","Dinleme ve Anlama","Konuşma","Okuma","Yazma","Kelime Bilgisi ve Dil Kullanımı"];
+const arabicSkills=["Genel Tarama","Dinleme ve Anlama","Konuşma","Okuma","Yazma","Kelime Bilgisi ve Dil Kullanımı"];
 
 const curriculum:Record<string,Record<string,string[]>>={
   Matematik:{
@@ -53,8 +54,9 @@ const curriculum:Record<string,Record<string,string[]>>={
   "Türk Dili ve Edebiyatı":{"9":["Genel Tarama","Sözün İnceliği","Anlam Arayışı","Anlamın Yapı Taşları","Dilin Zenginliği"],"10":["Genel Tarama","Edebî Metinleri Anlama","Şiir","Hikâye ve Roman","Tiyatro","Öğretici Metinler"],"11":["Genel Tarama","Şiir","Öykü ve Roman","Tiyatro","Makale ve Deneme","Edebiyat Dönemleri"],"12":["Genel Tarama","Cumhuriyet Dönemi Şiiri","Roman ve Hikâye","Tiyatro","Deneme ve Söyleşi","Dünya Edebiyatı"]},
   Felsefe:{"10":["Genel Tarama","Felsefenin Doğası","Felsefe, Mantık ve Argümantasyon","Varlık Felsefesi","Bilgi Felsefesi","Ahlak Felsefesi","Estetik ve Sanat Felsefesi","Siyaset Felsefesi","Din Felsefesi","Bilim Felsefesi"],"11":["Genel Tarama","Felsefi Düşüncenin Tarihsel Gelişimi","Bilgi ve Varlık","Ahlak, Siyaset ve Din","Bilim ve Sanat"]},
   İngilizce:{"2":englishSkills,"3":englishSkills,"4":englishSkills,"5":englishSkills,"6":englishSkills,"7":englishSkills,"8":englishSkills,"9":englishSkills,"10":englishSkills,"11":englishSkills,"12":englishSkills},
-  Kürtçe:Object.fromEntries(gradeLevels.map(g=>[g,kurdishSkills]))
+  Kürtçe:Object.fromEntries(gradeLevels.map(g=>[g,kurdishSkills])),
+  Arapça:Object.fromEntries(gradeLevels.map(g=>[g,arabicSkills]))
 };
 
-export function getSubjectsForGrade(grade:string){return Object.entries(curriculum).filter(([,byGrade])=>Boolean(byGrade[grade])).map(([subject])=>subject)}
+export function getSubjectsForGrade(grade:string,_allowedSubjects?:readonly string[]){return Object.entries(curriculum).filter(([,byGrade])=>Boolean(byGrade[grade])).map(([subject])=>subject)}
 export function getTopicsForGrade(subject:string,grade:string){return curriculum[subject]?.[grade]??["Genel Tarama"]}

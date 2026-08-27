@@ -5,11 +5,12 @@
 .appHero>.quickActions{display:none!important}
 .appHero>.aiHero{display:none!important}
 .appHero>.subjectAssist{display:none!important}
-.appHero>.smartActions{order:2}
-.appHero>.assessmentStrip{order:3}
-.appHero>.teacherStrip{order:4}
-.appHero>.historyStrip{order:5}
-.appHero>.thinking,.appHero>.errorBox,.appHero>.solutionCard,.appHero>.smartResult,.appHero>.practiceSet{order:6}
+.appHero>.thinking,.appHero>.errorBox,.appHero>.solutionCard{order:2}
+.appHero>.smartActions{order:3}
+.appHero>.assessmentStrip{order:4}
+.appHero>.teacherStrip{order:5}
+.appHero>.historyStrip{order:6}
+.appHero>.smartResult,.appHero>.practiceSet{order:7}
 .questionBox .composerActions>.attachButton{display:none!important}
 .composerActions{justify-content:flex-end!important;gap:9px!important;flex-wrap:wrap}
 .composerInlineTools{display:flex;align-items:center;gap:8px;margin-right:auto}

@@ -1,9 +1,9 @@
 export const gradeLevels=["1","2","3","4","5","6","7","8","9","10","11","12","Mezun / YKS","KPSS / ALES"] as const;
 
 const geographyUnits=["Genel Tarama","Coğrafyanın Doğası","Mekânsal Bilgi Teknolojileri","Doğal Sistemler ve Süreçler","Beşerî Sistemler ve Süreçler","Ekonomik Faaliyetler ve Etkileri","Afetler ve Sürdürülebilir Çevre","Bölgeler, Ülkeler ve Küresel Bağlantılar"];
-const englishSkills=["Genel Tarama","Listening","Speaking","Reading","Writing","Vocabulary and Language Use"];
-const kurdishSkills=["Genel Tarama","Dinleme ve Anlama","Konuşma","Okuma","Yazma","Kelime Bilgisi ve Dil Kullanımı"];
-const arabicSkills=["Genel Tarama","Dinleme ve Anlama","Konuşma","Okuma","Yazma","Kelime Bilgisi ve Dil Kullanımı"];
+const englishSkills=["Genel Tarama","Listening","Speaking","Reading","Read Aloud & Pronunciation","Writing","Writing Error Check","Vocabulary and Language Use"];
+const kurdishSkills=["Genel Tarama","Dinleme ve Anlama","Konuşma","Okuma","Sesli Okuma ve Telaffuz","Yazma","Yazım ve Dilbilgisi Hata Kontrolü","Kelime Bilgisi ve Dil Kullanımı"];
+const arabicSkills=["Genel Tarama","Dinleme ve Anlama","Konuşma","Okuma","Sesli Okuma ve Telaffuz","Yazma","Yazım ve Dilbilgisi Hata Kontrolü","Kelime Bilgisi ve Dil Kullanımı"];
 
 const curriculum:Record<string,Record<string,string[]>>={
   Matematik:{

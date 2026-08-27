@@ -1,4 +1,5 @@
 import type { AIAnswer, ProviderExecutor, QuestionAnalysis, StudentQuestion } from "./types.js";
+import { buildIntentGuidance } from "./prompt-guidance.js";
 
 const responseSchema = {
   type: "OBJECT",
@@ -15,12 +16,12 @@ function buildPrompt(input: StudentQuestion, analysis: QuestionAnalysis): string
   const parts = [
     "Sen Neşevren adlı yapay zekâ destekli eğitim platformunun matematik çözüm motorusun.",
     "Türkçe, açık, pedagojik ve matematiksel olarak doğru cevap ver.",
-    "Öğrencinin seviyesine uygun, gereksiz uzun olmayan bir çözüm üret.",
     "Cevabı yalnızca istenen JSON şemasına uygun döndür.",
     `İstek türü: ${input.intent}`,
     `Konu: ${analysis.topic} / ${analysis.subtopic}`,
     `Sınav: ${analysis.exam}`,
     `Zorluk: ${analysis.difficulty}`,
+    ...buildIntentGuidance(input.intent),
   ];
   if (input.inputType === "image") {
     parts.push("Ekli kırpılmış görselde yalnızca seçili matematik sorusunu oku. Metni, sayıları, seçenekleri ve sembolleri dikkatlice yorumla. Görsel yeterince okunmuyorsa bunu açıkça söyle; uydurma yapma.");
@@ -54,50 +55,27 @@ function parseAnswer(raw: string): AIAnswer {
   };
 }
 
-type GeminiResponse = {
-  candidates?: Array<{
-    content?: {
-      parts?: Array<{ text?: string }>;
-    };
-  }>;
-  error?: { message?: string; status?: string; code?: number };
-};
+type GeminiResponse = { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>; error?: { message?: string; status?: string; code?: number } };
 
 export const geminiExecutor: ProviderExecutor = {
   providerId: "gemini",
   async execute(input, analysis) {
     const apiKey = process.env.GEMINI_API_KEY?.trim();
     if (!apiKey) throw new Error("GEMINI_API_KEY tanımlı değil.");
-
     const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.6-flash";
     const prompt = buildPrompt(input, analysis);
     const parts: Array<Record<string, unknown>> = [{ text: prompt }];
-
     if (input.inputType === "image" && input.imageDataUrl) {
       const image = parseDataUrl(input.imageDataUrl);
       parts.push({ inlineData: { mimeType: image.mimeType, data: image.data } });
     }
-
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": apiKey,
-      },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema,
-        },
-      }),
+      headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+      body: JSON.stringify({ contents: [{ role: "user", parts }], generationConfig: { responseMimeType: "application/json", responseSchema } }),
     });
-
     const payload = await response.json() as GeminiResponse;
-    if (!response.ok) {
-      throw new Error(`Gemini çağrısı başarısız: ${response.status} ${payload.error?.message ?? response.statusText}`);
-    }
-
+    if (!response.ok) throw new Error(`Gemini çağrısı başarısız: ${response.status} ${payload.error?.message ?? response.statusText}`);
     const output = payload.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("").trim();
     if (!output) throw new Error("Gemini boş cevap döndürdü.");
     return parseAnswer(output);

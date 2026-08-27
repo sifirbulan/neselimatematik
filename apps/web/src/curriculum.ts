@@ -1,3 +1,8 @@
+// Neşevren curriculum reference layer.
+// Primary authorities: TTKB + MEB Öğretim Programları + TYMM.
+// MEBİ is used as a learner-facing cross-check; Kitapseç is only a market/question-style reference.
+// "Genel Tarama" is a Neşevren product option and is not an official curriculum heading.
+
 export const gradeLevels=["1","2","3","4","5","6","7","8","9","10","11","12","Mezun / YKS","KPSS / ALES"] as const;
 
 const commonHighSchoolGeography=["Genel Tarama","Coğrafyanın Doğası","Mekânsal Bilgi Teknolojileri","Doğal Sistemler ve Süreçler","Beşerî Sistemler ve Süreçler","Ekonomik Faaliyetler ve Etkileri","Afetler ve Sürdürülebilir Çevre","Bölgeler, Ülkeler ve Küresel Bağlantılar"];
@@ -45,16 +50,58 @@ const curriculum:Record<string,Record<string,string[]>>={
     "6":["Genel Tarama","Birlikte Yaşamak","Evimiz Dünya","Ortak Mirasımız","Yaşayan Demokrasimiz","Hayatımızdaki Ekonomi","Teknoloji ve Sosyal Bilimler"],
     "7":["Genel Tarama","Birlikte Yaşamak","Evimiz Dünya","Ortak Mirasımız","Yaşayan Demokrasimiz","Hayatımızdaki Ekonomi","Teknoloji ve Sosyal Bilimler"]
   },
-  Fizik:{"9":["Genel Tarama","Fizik Bilimi ve Kariyer Keşfi","Kuvvet ve Hareket","Akışkanlar","Enerji"],"10":["Genel Tarama","Kuvvet ve Hareket","Enerji","Elektrik","Dalgalar"],"11":["Genel Tarama","Kuvvet ve Hareket","Elektrik ve Manyetizma","Dalgalar ve Optik","Modern Fizik"],"12":["Genel Tarama","Çembersel Hareket","Basit Harmonik Hareket","Dalga Mekaniği","Atom Fiziği","Modern Fizik"]},
-  Kimya:{"9":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],"10":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],"11":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],"12":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"]},
-  Biyoloji:{"9":["Genel Tarama","Yaşam","Organizasyon"],"10":["Genel Tarama","Enerji","Ekoloji"],"11":["Genel Tarama","Tepki","Homeostazi"],"12":["Genel Tarama","Üreme","Gen"]},
+  Fizik:{
+    "9":["Genel Tarama","Fizik Bilimi ve Kariyer Keşfi","Kuvvet ve Hareket","Akışkanlar","Enerji"],
+    "10":["Genel Tarama","Kuvvet ve Hareket","Enerji","Elektrik","Dalgalar"],
+    "11":["Genel Tarama","Kuvvet ve Hareket","Elektrik ve Manyetizma","Dalgalar ve Optik","Modern Fizik"],
+    "12":["Genel Tarama","Çembersel Hareket","Basit Harmonik Hareket","Dalga Mekaniği","Atom Fiziği","Modern Fizik"]
+  },
+  Kimya:{
+    "9":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],
+    "10":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],
+    "11":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],
+    "12":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"]
+  },
+  Biyoloji:{
+    "9":["Genel Tarama","Yaşam","Organizasyon"],
+    "10":["Genel Tarama","Enerji","Ekoloji"],
+    "11":["Genel Tarama","Tepki","Homeostazi"],
+    "12":["Genel Tarama","Üreme","Gen"]
+  },
   Coğrafya:{"9":commonHighSchoolGeography,"10":commonHighSchoolGeography,"11":commonHighSchoolGeography,"12":commonHighSchoolGeography},
-  Tarih:{"9":["Genel Tarama","Geçmişin İnşa Sürecinde Tarih","Eski Çağ Medeniyetleri","Orta Çağ Medeniyetleri"],"10":["Genel Tarama","Türkistan’dan Türkiye’ye (1040-1299)","Beylikten Devlete Osmanlı (1299-1453)","Cihan Devleti Osmanlı (1453-1683)"],"11":["Genel Tarama","Değişen Dünyada Osmanlı Devleti (1683-1789)","Dönüşüm Sürecinde Osmanlı (1789-1908)","Savaşlar Sarmalında Osmanlı (1908-1918)"],"12":["Genel Tarama","20. Yüzyıl Başlarında Osmanlı Devleti ve Dünya","Millî Mücadele","Atatürkçülük ve Türk İnkılabı","İki Savaş Arasındaki Dönemde Türkiye ve Dünya","II. Dünya Savaşı Sürecinde Türkiye ve Dünya","II. Dünya Savaşı Sonrasında Türkiye ve Dünya"]},
-  "Türk Dili ve Edebiyatı":{"9":["Genel Tarama","Sözün İnceliği","Anlam Arayışı","Anlamın Yapı Taşları","Dilin Zenginliği"],"10":["Genel Tarama","Edebî Metinleri Anlama","Şiir","Hikâye ve Roman","Tiyatro","Öğretici Metinler"],"11":["Genel Tarama","Şiir","Öykü ve Roman","Tiyatro","Makale ve Deneme","Edebiyat Dönemleri"],"12":["Genel Tarama","Cumhuriyet Dönemi Şiiri","Roman ve Hikâye","Tiyatro","Deneme ve Söyleşi","Dünya Edebiyatı"]},
-  Felsefe:{"10":["Genel Tarama","Felsefenin Doğası","Felsefe, Mantık ve Argümantasyon","Varlık Felsefesi","Bilgi Felsefesi","Ahlak Felsefesi","Estetik ve Sanat Felsefesi","Siyaset Felsefesi","Din Felsefesi","Bilim Felsefesi"],"11":["Genel Tarama","Felsefi Düşüncenin Tarihsel Gelişimi","Bilgi ve Varlık","Ahlak, Siyaset ve Din","Bilim ve Sanat"]},
-  İngilizce:Object.fromEntries(gradeLevels.map(g=>[g,englishSkills])),
+  Tarih:{
+    "9":["Genel Tarama","Geçmişin İnşa Sürecinde Tarih","Eski Çağ Medeniyetleri","Orta Çağ Medeniyetleri"],
+    "10":["Genel Tarama","Türkistan’dan Türkiye’ye (1040-1299)","Beylikten Devlete Osmanlı (1299-1453)","Cihan Devleti Osmanlı (1453-1683)"],
+    "11":["Genel Tarama","Değişen Dünyada Osmanlı Devleti (1683-1789)","Dönüşüm Sürecinde Osmanlı (1789-1908)","Savaşlar Sarmalında Osmanlı (1908-1918)"],
+    "12":["Genel Tarama","20. Yüzyıl Başlarında Osmanlı Devleti ve Dünya","Millî Mücadele","Atatürkçülük ve Türk İnkılabı","İki Savaş Arasındaki Dönemde Türkiye ve Dünya","II. Dünya Savaşı Sürecinde Türkiye ve Dünya","II. Dünya Savaşı Sonrasında Türkiye ve Dünya"]
+  },
+  "Türk Dili ve Edebiyatı":{
+    "9":["Genel Tarama","Sözün İnceliği","Anlam Arayışı","Anlamın Yapı Taşları","Dilin Zenginliği"],
+    "10":["Genel Tarama","Edebî Metinleri Anlama","Şiir","Hikâye ve Roman","Tiyatro","Öğretici Metinler"],
+    "11":["Genel Tarama","Şiir","Öykü ve Roman","Tiyatro","Makale ve Deneme","Edebiyat Dönemleri"],
+    "12":["Genel Tarama","Cumhuriyet Dönemi Şiiri","Roman ve Hikâye","Tiyatro","Deneme ve Söyleşi","Dünya Edebiyatı"]
+  },
+  Felsefe:{
+    "10":["Genel Tarama","Felsefenin Doğası","Felsefe, Mantık ve Argümantasyon","Varlık Felsefesi","Bilgi Felsefesi","Ahlak Felsefesi","Estetik ve Sanat Felsefesi","Siyaset Felsefesi","Din Felsefesi","Bilim Felsefesi"],
+    "11":["Genel Tarama","Felsefi Düşüncenin Tarihsel Gelişimi","Bilgi ve Varlık","Ahlak, Siyaset ve Din","Bilim ve Sanat"]
+  },
+  // TTKB'nin 13.08.2025 tarihli güncellemesine göre standart İngilizce programı 2-8 ve 9-12. sınıflardadır.
+  İngilizce:{
+    "2":englishSkills,"3":englishSkills,"4":englishSkills,"5":englishSkills,"6":englishSkills,"7":englishSkills,"8":englishSkills,
+    "9":englishSkills,"10":englishSkills,"11":englishSkills,"12":englishSkills
+  },
+  // Kürtçe Neşevren'in ek dil desteğidir. Resmî MEB zorunlu ders müfredatı gibi sunulmaz.
   Kürtçe:Object.fromEntries(gradeLevels.map(g=>[g,kurdishSkills]))
 };
+
+export type CurriculumSource={name:string;url:string;role:"official"|"cross-check"|"market-reference"};
+export const curriculumSources:CurriculumSource[]=[
+  {name:"Talim ve Terbiye Kurulu Başkanlığı",url:"https://ttkb.meb.gov.tr/",role:"official"},
+  {name:"MEB Öğretim Programları",url:"https://mufredat.meb.gov.tr/",role:"official"},
+  {name:"Türkiye Yüzyılı Maarif Modeli",url:"https://tymm.meb.gov.tr/ogretim-programlari/",role:"official"},
+  {name:"MEBİ",url:"https://mebi.eba.gov.tr/",role:"cross-check"},
+  {name:"Kitapseç",url:"https://www.kitapsec.com/",role:"market-reference"}
+];
 
 export function getSubjectsForGrade(grade:string){return Object.entries(curriculum).filter(([,byGrade])=>Boolean(byGrade[grade])).map(([subject])=>subject)}
 export function getTopicsForGrade(subject:string,grade:string){return curriculum[subject]?.[grade]??["Genel Tarama"]}

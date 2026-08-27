@@ -15,11 +15,17 @@ function healthPayload() {
     openAIConfigured: Boolean(process.env.OPENAI_API_KEY?.trim()),
     geminiConfigured: Boolean(process.env.GEMINI_API_KEY?.trim()),
     groqConfigured: Boolean(process.env.GROQ_API_KEY?.trim()),
+    mistralConfigured: Boolean(process.env.MISTRAL_API_KEY?.trim()),
+    openRouterConfigured: Boolean(process.env.OPENROUTER_API_KEY?.trim()),
     model: process.env.OPENAI_MODEL?.trim() || "gpt-5.6-terra",
     visionModel: process.env.OPENAI_VISION_MODEL?.trim() || "gpt-5.6",
     geminiModel: process.env.GEMINI_MODEL?.trim() || "gemini-3.6-flash",
     groqModel: process.env.GROQ_MODEL?.trim() || "openai/gpt-oss-120b",
     groqVisionModel: process.env.GROQ_VISION_MODEL?.trim() || "qwen/qwen3.6-27b",
+    mistralModel: process.env.MISTRAL_MODEL?.trim() || "mistral-small-latest",
+    mistralVisionModel: process.env.MISTRAL_VISION_MODEL?.trim() || "mistral-small-2506",
+    openRouterModel: process.env.OPENROUTER_MODEL?.trim() || "openrouter/free",
+    openRouterVisionModel: process.env.OPENROUTER_VISION_MODEL?.trim() || "openrouter/free",
   };
 }
 

@@ -1,18 +1,18 @@
 .appHero{display:flex;flex-direction:column}
 .appHero>*{order:20}
 .appHero>.appTopbar{order:0}
-.appHero>.questionBox{order:1;margin-top:18px}
+.appHero>.questionBox{order:1;margin-top:10px}
 .appHero>.quickActions{display:none!important}
-.appHero>.aiHero{order:3}
-.appHero>.subjectAssist{order:4}
-.appHero>.smartActions{order:5}
-.appHero>.assessmentStrip{order:6}
-.appHero>.teacherStrip{order:7}
-.appHero>.historyStrip{order:8}
-.appHero>.thinking,.appHero>.errorBox,.appHero>.solutionCard,.appHero>.smartResult,.appHero>.practiceSet{order:9}
+.appHero>.aiHero{display:none!important}
+.appHero>.subjectAssist{order:2;margin-top:8px}
+.appHero>.smartActions{order:3}
+.appHero>.assessmentStrip{order:4}
+.appHero>.teacherStrip{order:5}
+.appHero>.historyStrip{order:6}
+.appHero>.thinking,.appHero>.errorBox,.appHero>.solutionCard,.appHero>.smartResult,.appHero>.practiceSet{order:7}
 .questionBox .composerActions>.attachButton{display:none!important}
 .composerActions{justify-content:flex-end!important;gap:9px!important;flex-wrap:wrap}
 .composerInlineTools{display:flex;align-items:center;gap:8px;margin-right:auto}
 .composerToolButton{display:inline-flex;align-items:center;gap:6px;padding:10px 12px;border-radius:12px;background:#eaf7f5;color:#0b6668;font-weight:800}
 .composerToolButton span{font-size:17px}.composerToolButton b{font-size:12px}
-@media(max-width:760px){.appHero>.questionBox{margin-top:14px}.appHero>.aiHero{padding-top:18px}.composerActions{gap:7px!important}.composerInlineTools{gap:6px}.composerToolButton{padding:10px}.composerToolButton b{font-size:11px}.solveButton{margin-left:0}}
+@media(max-width:760px){.appHero>.questionBox{margin-top:8px}.appHero>.subjectAssist{margin-top:6px}.composerActions{gap:7px!important}.composerInlineTools{gap:6px}.composerToolButton{padding:10px}.composerToolButton b{font-size:11px}.solveButton{margin-left:0}}

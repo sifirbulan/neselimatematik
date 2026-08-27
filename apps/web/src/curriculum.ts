@@ -1,6 +1,8 @@
 export const gradeLevels=["1","2","3","4","5","6","7","8","9","10","11","12","Mezun / YKS","KPSS / ALES"] as const;
 
 const commonHighSchoolGeography=["Genel Tarama","Coğrafyanın Doğası","Mekânsal Bilgi Teknolojileri","Doğal Sistemler ve Süreçler","Beşerî Sistemler ve Süreçler","Ekonomik Faaliyetler ve Etkileri","Afetler ve Sürdürülebilir Çevre","Bölgeler, Ülkeler ve Küresel Bağlantılar"];
+const englishSkills=["Genel Tarama","Listening","Speaking","Reading","Writing","Vocabulary and Language Use"];
+const kurdishSkills=["Genel Tarama","Dinleme ve Anlama","Konuşma","Okuma","Yazma","Kelime Bilgisi ve Dil Kullanımı"];
 
 const curriculum:Record<string,Record<string,string[]>>={
   Matematik:{
@@ -22,12 +24,12 @@ const curriculum:Record<string,Record<string,string[]>>={
   Türkçe:{
     "1":["Genel Tarama","Güzel Davranışlarımız","Mustafa Kemal’den Atatürk’e","Çevremizdeki Yaşam","Yol Arkadaşımız Kitaplar","Yeteneklerimizi Keşfediyoruz","Minik Kâşifler","Atalarımızın İzleri","Sorumluluklarımızın Farkındayız"],
     "2":["Genel Tarama","Değerlerimizle Varız","Atatürk ve Çocuk","Doğada Neler Oluyor?","Okuma Serüvenimiz","Yeteneklerimizi Tanıyoruz","Mucit Çocuk","Kültür Hazinemiz","Haklarımızı Biliyoruz"],
-    "3":["Genel Tarama","Dinleme/İzleme","Okuma","Konuşma","Yazma","Söz Varlığı","Metni Anlama"],
-    "4":["Genel Tarama","Dinleme/İzleme","Okuma","Konuşma","Yazma","Söz Varlığı","Metni Anlama"],
+    "3":["Genel Tarama","Değerlerimizle Yaşıyoruz","Atatürk ve Kahramanlarımız","Doğayı Tanıyoruz","Bilgi Hazinemiz","Yeteneklerimizi Kullanıyoruz","Bilim Yolculuğu","Millî Kültürümüz","Hak ve Sorumluluklarımız"],
+    "4":["Genel Tarama","Erdemler","Millî Mücadele ve Atatürk","Doğa ve İnsan","Kütüphanemiz","Kendimizi Geliştiriyoruz","Bilim ve Teknoloji","Geçmişten Geleceğe Mirasımız","Demokratik Yaşam"],
     "5":["Genel Tarama","Oyun Dünyası","Atatürk’ü Tanımak","Duygularımı Tanıyorum","Geleneklerimiz","İletişim ve Sosyal İlişkiler","Sağlıklı Yaşıyorum"],
     "6":["Genel Tarama","Dilimizin Zenginliği","Bağımsızlık Yolu","Farklı Dünyalar","İletişim ve Sosyal İlişkiler","Bilim ve Teknoloji","Lider Ruhlar"],
-    "7":["Genel Tarama","Okuma","Dinleme/İzleme","Konuşma","Yazma","Metin Çözümleme","Söz Varlığı"],
-    "8":["Genel Tarama","Okuma","Dinleme/İzleme","Konuşma","Yazma","Metin Çözümleme","Söz Varlığı"]
+    "7":["Genel Tarama","Hayat Boyu Gelişim","Bir Hilal Uğruna","İletişim ve Sosyal İlişkiler","Türk Sanatı","Okuma Kültürü","Hak ve Sorumluluklar"],
+    "8":["Genel Tarama","İletişim ve Sosyal İlişkiler","Vatan Sevgisi","Doğa ve İnsan","Türk Hikâye Geleneği ve Destanları","Sanat ve Estetik","Akademik Düşünme Dünyası"]
   },
   "Fen Bilimleri":{
     "3":["Genel Tarama","Dünya ve Evren","Canlılar ve Yaşam","Fiziksel Olaylar","Madde ve Doğası","Sürdürülebilir Yaşam"],
@@ -43,65 +45,16 @@ const curriculum:Record<string,Record<string,string[]>>={
     "6":["Genel Tarama","Birlikte Yaşamak","Evimiz Dünya","Ortak Mirasımız","Yaşayan Demokrasimiz","Hayatımızdaki Ekonomi","Teknoloji ve Sosyal Bilimler"],
     "7":["Genel Tarama","Birlikte Yaşamak","Evimiz Dünya","Ortak Mirasımız","Yaşayan Demokrasimiz","Hayatımızdaki Ekonomi","Teknoloji ve Sosyal Bilimler"]
   },
-  Fizik:{
-    "9":["Genel Tarama","Fizik Bilimi ve Kariyer Keşfi","Kuvvet ve Hareket","Akışkanlar","Enerji"],
-    "10":["Genel Tarama","Kuvvet ve Hareket","Enerji","Elektrik","Dalgalar"],
-    "11":["Genel Tarama","Kuvvet ve Hareket","Elektrik ve Manyetizma","Dalgalar ve Optik","Modern Fizik"],
-    "12":["Genel Tarama","Çembersel Hareket","Basit Harmonik Hareket","Dalga Mekaniği","Atom Fiziği","Modern Fizik"]
-  },
-  Kimya:{
-    "9":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],
-    "10":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],
-    "11":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],
-    "12":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"]
-  },
-  Biyoloji:{
-    "9":["Genel Tarama","Yaşam","Organizasyon"],
-    "10":["Genel Tarama","Enerji","Ekoloji"],
-    "11":["Genel Tarama","Tepki","Homeostazi"],
-    "12":["Genel Tarama","Üreme","Gen"]
-  },
+  Fizik:{"9":["Genel Tarama","Fizik Bilimi ve Kariyer Keşfi","Kuvvet ve Hareket","Akışkanlar","Enerji"],"10":["Genel Tarama","Kuvvet ve Hareket","Enerji","Elektrik","Dalgalar"],"11":["Genel Tarama","Kuvvet ve Hareket","Elektrik ve Manyetizma","Dalgalar ve Optik","Modern Fizik"],"12":["Genel Tarama","Çembersel Hareket","Basit Harmonik Hareket","Dalga Mekaniği","Atom Fiziği","Modern Fizik"]},
+  Kimya:{"9":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],"10":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],"11":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],"12":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"]},
+  Biyoloji:{"9":["Genel Tarama","Yaşam","Organizasyon"],"10":["Genel Tarama","Enerji","Ekoloji"],"11":["Genel Tarama","Tepki","Homeostazi"],"12":["Genel Tarama","Üreme","Gen"]},
   Coğrafya:{"9":commonHighSchoolGeography,"10":commonHighSchoolGeography,"11":commonHighSchoolGeography,"12":commonHighSchoolGeography},
-  Tarih:{
-    "9":["Genel Tarama","Geçmişin İnşa Sürecinde Tarih","Eski Çağ Medeniyetleri","Orta Çağ Medeniyetleri"],
-    "10":["Genel Tarama","Türkistan’dan Türkiye’ye (1040-1299)","Beylikten Devlete Osmanlı (1299-1453)","Cihan Devleti Osmanlı (1453-1683)"],
-    "11":["Genel Tarama","Değişen Dünyada Osmanlı Devleti (1683-1789)","Dönüşüm Sürecinde Osmanlı (1789-1908)","Savaşlar Sarmalında Osmanlı (1908-1918)"]
-  },
-  "Türk Dili ve Edebiyatı":{
-    "9":["Genel Tarama","Sözün İnceliği","Anlam Arayışı","Anlamın Yapı Taşları","Dilin Zenginliği"],
-    "10":["Genel Tarama","Edebî Metinleri Anlama","Şiir","Hikâye ve Roman","Tiyatro","Öğretici Metinler"],
-    "11":["Genel Tarama","Şiir","Öykü ve Roman","Tiyatro","Makale ve Deneme","Edebiyat Dönemleri"],
-    "12":["Genel Tarama","Cumhuriyet Dönemi Şiiri","Roman ve Hikâye","Tiyatro","Deneme ve Söyleşi","Dünya Edebiyatı"]
-  },
-  Felsefe:{
-    "10":["Genel Tarama","Felsefenin Doğası","Felsefe, Mantık ve Argümantasyon","Varlık Felsefesi","Bilgi Felsefesi","Ahlak Felsefesi","Estetik ve Sanat Felsefesi","Siyaset Felsefesi","Din Felsefesi","Bilim Felsefesi"],
-    "11":["Genel Tarama","Felsefi Düşüncenin Tarihsel Gelişimi","Bilgi ve Varlık","Ahlak, Siyaset ve Din","Bilim ve Sanat"]
-  },
-  İngilizce:{
-    "1":["Genel Tarama","Listening and Speaking","Basic Vocabulary","Simple Classroom Language"],"2":["Genel Tarama","Listening and Speaking","Basic Vocabulary","Simple Sentences"],"3":["Genel Tarama","Listening","Speaking","Reading","Vocabulary"],"4":["Genel Tarama","Listening","Speaking","Reading","Writing","Vocabulary"],
-    "5":["Genel Tarama","Listening","Speaking","Reading","Writing","Vocabulary"],"6":["Genel Tarama","Listening","Speaking","Reading","Writing","Vocabulary"],"7":["Genel Tarama","Listening","Speaking","Reading","Writing","Vocabulary"],"8":["Genel Tarama","Listening","Speaking","Reading","Writing","Vocabulary"],
-    "9":["Genel Tarama","Listening","Speaking","Reading","Writing","Vocabulary and Grammar"],"10":["Genel Tarama","Listening","Speaking","Reading","Writing","Vocabulary and Grammar"],"11":["Genel Tarama","Listening","Speaking","Reading","Writing","Vocabulary and Grammar"],"12":["Genel Tarama","Listening","Speaking","Reading","Writing","Vocabulary and Grammar"]
-  },
-  Kürtçe:{
-    "1":["Genel Tarama","Dinleme ve Konuşma","Temel Kelimeler"],"2":["Genel Tarama","Dinleme ve Konuşma","Temel Kelimeler","Basit Cümleler"],"3":["Genel Tarama","Dinleme","Konuşma","Okuma","Kelime Bilgisi"],"4":["Genel Tarama","Dinleme","Konuşma","Okuma","Yazma","Kelime Bilgisi"],
-    "5":["Genel Tarama","Dinleme","Konuşma","Okuma","Yazma","Dil Bilgisi"],"6":["Genel Tarama","Dinleme","Konuşma","Okuma","Yazma","Dil Bilgisi"],"7":["Genel Tarama","Dinleme","Konuşma","Okuma","Yazma","Dil Bilgisi"],"8":["Genel Tarama","Dinleme","Konuşma","Okuma","Yazma","Dil Bilgisi"],
-    "9":["Genel Tarama","Okuma","Yazma","Dil Bilgisi","Söz Varlığı"],"10":["Genel Tarama","Okuma","Yazma","Dil Bilgisi","Söz Varlığı"],"11":["Genel Tarama","Okuma","Yazma","Dil Bilgisi","Söz Varlığı"],"12":["Genel Tarama","Okuma","Yazma","Dil Bilgisi","Söz Varlığı"]
-  }
+  Tarih:{"9":["Genel Tarama","Geçmişin İnşa Sürecinde Tarih","Eski Çağ Medeniyetleri","Orta Çağ Medeniyetleri"],"10":["Genel Tarama","Türkistan’dan Türkiye’ye (1040-1299)","Beylikten Devlete Osmanlı (1299-1453)","Cihan Devleti Osmanlı (1453-1683)"],"11":["Genel Tarama","Değişen Dünyada Osmanlı Devleti (1683-1789)","Dönüşüm Sürecinde Osmanlı (1789-1908)","Savaşlar Sarmalında Osmanlı (1908-1918)"],"12":["Genel Tarama","20. Yüzyıl Başlarında Osmanlı Devleti ve Dünya","Millî Mücadele","Atatürkçülük ve Türk İnkılabı","İki Savaş Arasındaki Dönemde Türkiye ve Dünya","II. Dünya Savaşı Sürecinde Türkiye ve Dünya","II. Dünya Savaşı Sonrasında Türkiye ve Dünya"]},
+  "Türk Dili ve Edebiyatı":{"9":["Genel Tarama","Sözün İnceliği","Anlam Arayışı","Anlamın Yapı Taşları","Dilin Zenginliği"],"10":["Genel Tarama","Edebî Metinleri Anlama","Şiir","Hikâye ve Roman","Tiyatro","Öğretici Metinler"],"11":["Genel Tarama","Şiir","Öykü ve Roman","Tiyatro","Makale ve Deneme","Edebiyat Dönemleri"],"12":["Genel Tarama","Cumhuriyet Dönemi Şiiri","Roman ve Hikâye","Tiyatro","Deneme ve Söyleşi","Dünya Edebiyatı"]},
+  Felsefe:{"10":["Genel Tarama","Felsefenin Doğası","Felsefe, Mantık ve Argümantasyon","Varlık Felsefesi","Bilgi Felsefesi","Ahlak Felsefesi","Estetik ve Sanat Felsefesi","Siyaset Felsefesi","Din Felsefesi","Bilim Felsefesi"],"11":["Genel Tarama","Felsefi Düşüncenin Tarihsel Gelişimi","Bilgi ve Varlık","Ahlak, Siyaset ve Din","Bilim ve Sanat"]},
+  İngilizce:Object.fromEntries(gradeLevels.map(g=>[g,englishSkills])),
+  Kürtçe:Object.fromEntries(gradeLevels.map(g=>[g,kurdishSkills]))
 };
 
-export function getTopicsForGrade(subject:string,grade:string):string[]{
-  const byGrade=curriculum[subject];
-  if(!byGrade)return ["Genel Tarama"];
-  return byGrade[grade]??["Genel Tarama"];
-}
-
-export function getSubjectsForGrade(grade:string,allSubjects:string[]):string[]{
-  if(grade==="Mezun / YKS"||grade==="KPSS / ALES")return allSubjects.filter(s=>s!=="Otomatik");
-  const n=Number(grade);
-  if(!Number.isFinite(n))return allSubjects.filter(s=>s!=="Otomatik");
-  return allSubjects.filter(subject=>{
-    if(subject==="Otomatik")return false;
-    if(subject==="Kürtçe"||subject==="İngilizce")return true;
-    return Boolean(curriculum[subject]?.[grade]);
-  });
-}
+export function getSubjectsForGrade(grade:string){return Object.entries(curriculum).filter(([,byGrade])=>Boolean(byGrade[grade])).map(([subject])=>subject)}
+export function getTopicsForGrade(subject:string,grade:string){return curriculum[subject]?.[grade]??["Genel Tarama"]}

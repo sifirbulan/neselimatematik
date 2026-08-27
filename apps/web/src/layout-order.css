@@ -2,12 +2,14 @@
 .appHero>*{order:20}
 .appHero>.appTopbar{order:0}
 .appHero>.questionBox{order:1;margin-top:18px}
-.appHero>.aiHero{order:2}
-.appHero>.quickActions{order:3}
+.appHero>.quickActions{order:2;display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}
+.appHero>.quickActions .quickAction{grid-column:auto;min-height:92px}
+.appHero>.quickActions .quickAction:nth-child(2){display:none}
+.appHero>.aiHero{order:3}
 .appHero>.subjectAssist{order:4}
 .appHero>.smartActions{order:5}
 .appHero>.assessmentStrip{order:6}
 .appHero>.teacherStrip{order:7}
 .appHero>.historyStrip{order:8}
 .appHero>.thinking,.appHero>.errorBox,.appHero>.solutionCard,.appHero>.smartResult,.appHero>.practiceSet{order:9}
-@media(max-width:760px){.appHero>.questionBox{margin-top:14px}.appHero>.aiHero{padding-top:18px}}
+@media(max-width:760px){.appHero>.questionBox{margin-top:14px}.appHero>.quickActions{grid-template-columns:1fr 1fr}.appHero>.quickActions .quickAction{min-height:84px;padding:14px}.appHero>.aiHero{padding-top:18px}}

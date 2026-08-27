@@ -2,6 +2,8 @@
 .appHero>*{order:20}
 .appHero>.appTopbar{order:0}
 .appHero>.questionBox{order:1;margin-top:18px}
+.appHero>.questionBox .attachButton{display:none}
+.appHero>.questionBox .composerActions{justify-content:flex-end}
 .appHero>.quickActions{order:2;display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:12px}
 .appHero>.quickActions .quickAction{grid-column:auto;min-height:92px}
 .appHero>.quickActions .quickAction:nth-child(2){display:none}

@@ -32,12 +32,12 @@ const curriculum:Record<string,Record<string,string[]>>={
     "8":["Genel Tarama","İletişim ve Sosyal İlişkiler","Vatan Sevgisi","Doğa ve İnsan","Türk Hikâye Geleneği ve Destanları","Sanat ve Estetik","Akademik Düşünme Dünyası"]
   },
   "Fen Bilimleri":{
-    "3":["Genel Tarama","Bilimsel Keşif Yolculuğu","Canlılar Dünyasına Yolculuk","Yer Bilimciler İş Başında","Maddeyi Tanıyalım, Karıştırıp Ayıralım","Hareketi Keşfediyorum","Yaşamımızı Kolaylaştıran Elektrik","Toprağı Tanıyorum, Tarımı Keşfediyorum","Canlıların Yaşam Alanlarına Yolculuk"],
-    "4":["Genel Tarama","Bilime Yolculuk","Sağlıklı Besleniyorum","Dünya’mızı Keşfedelim","Maddenin Değişimi","Mıknatısı Keşfediyorum","Elektrik ve Enerji Kaynakları","Işığı Tanıyalım","Sürdürülebilir Yaşam Alanları"],
-    "5":["Genel Tarama","Gökyüzündeki Komşularımız ve Biz","Kuvveti Tanıyalım","Canlıların Yapısına Yolculuk","Işığın Dünyası","Maddenin Doğası","Yaşamımızdaki Elektrik","Sürdürülebilir Yaşam ve Geri Dönüşüm"],
+    "3":["Genel Tarama","Dünya ve Evren","Canlılar ve Yaşam","Fiziksel Olaylar","Madde ve Doğası"],
+    "4":["Genel Tarama","Dünya ve Evren","Canlılar ve Yaşam","Fiziksel Olaylar","Madde ve Doğası"],
+    "5":["Genel Tarama","Gökyüzündeki Komşularımız ve Biz","Kuvveti Tanıyalım","Canlıların Yapısına Yolculuk","Işığın Dünyası","Maddenin Doğası","Elektrik Devre Elemanları","Sürdürülebilir Yaşam ve Geri Dönüşüm"],
     "6":["Genel Tarama","Güneş Sistemi ve Tutulmalar","Kuvvetin Etkisinde Hareket","Canlılarda Sistemler","Işığın Yansıması ve Renkler","Maddenin Ayırt Edici Özellikleri","Elektriğin İletimi ve Direnç","Sürdürülebilir Yaşam ve Etkileşim"],
-    "7":["Genel Tarama","Uzay Çağı","Kuvvet ve Enerjiyi Keşfedelim","Vücudumuzdaki Sistemler","Işığın Kırılması ve Mercekler","Maddenin Doğasına Yolculuk","Elektriklenme","Sürdürülebilir Yaşam ve Enerji"],
-    "8":["Genel Tarama","Mevsimler ve İklim","Yaşamı Kolaylaştıran Kuvvet","Yaşamın Gizemi","Sesin Dünyası","Periyodik Tablo ve Maddenin Etkileşimi","Elektriğin Yolculuğu","Sürdürülebilir Yaşam ve Madde Döngüleri"]
+    "7":["Genel Tarama","Dünya ve Evren","Kuvvet ve Enerji","Canlılarda Yapı ve Sistemler","Işık","Madde","Elektrik","Sürdürülebilir Yaşam"],
+    "8":["Genel Tarama","Mevsimler ve İklim","DNA ve Genetik Kod","Basınç","Madde ve Endüstri","Basit Makineler","Enerji Dönüşümleri ve Çevre Bilimi","Elektrik Yükleri ve Elektrik Enerjisi"]
   },
   "Sosyal Bilgiler":{
     "4":["Genel Tarama","Birlikte Yaşamak","Evimiz Dünya","Ortak Mirasımız","Yaşayan Demokrasimiz","Hayatımızdaki Ekonomi","Teknoloji ve Sosyal Bilimler"],

@@ -47,7 +47,12 @@ const curriculum:Record<string,Record<string,string[]>>={
     "7":["Genel Tarama","Birlikte Yaşamak","Evimiz Dünya","Ortak Mirasımız","Yaşayan Demokrasimiz","Hayatımızdaki Ekonomi","Teknoloji ve Sosyal Bilimler"]
   },
   Fizik:{"9":["Genel Tarama","Fizik Bilimi ve Kariyer Keşfi","Kuvvet ve Hareket","Akışkanlar","Enerji"],"10":["Genel Tarama","Kuvvet ve Hareket","Enerji","Elektrik","Dalgalar"],"11":["Genel Tarama","Kuvvet ve Hareket","Elektrik ve Manyetizma","Optik"],"12":["Genel Tarama","Kuvvet ve Hareket","Enerji","Dalgalar","Madde ve Doğası"]},
-  Kimya:{"9":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],"10":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],"11":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"],"12":["Genel Tarama","Etkileşim","Çeşitlilik","Sürdürülebilirlik"]},
+  Kimya:{
+    "9":["Genel Tarama","Etkileşim: Kimya Hayattır","Etkileşim: Atomdan Periyodik Tabloya","Çeşitlilik: Etkileşimler","Çeşitlilik: Etkileşimden Maddeye","Sürdürülebilirlik: Nanoparçacıklar ve Ekolojik Sürdürülebilirlik"],
+    "10":["Genel Tarama","Etkileşim: Kimyasal Tepkimeler","Etkileşim: Gazlar","Çeşitlilik: Çözeltiler","Sürdürülebilirlik: Yeşil Kimya, Çevresel ve Ekolojik Sürdürülebilirlik"],
+    "11":["Genel Tarama","Etkileşim: Enerji","Etkileşim: Kimyasal Tepkimelerde Hız","Çeşitlilik: Denge","Çeşitlilik: Asit ve Baz Çözeltilerinde Denge","Çeşitlilik: Çözünürlük Dengesi","Sürdürülebilirlik: Nanoteknoloji ve Sürdürülebilirlik"],
+    "12":["Genel Tarama","Etkileşim: İndirgenme-Yükseltgenme Tepkimeleri","Etkileşim: Elektrokimyasal Hücreler","Çeşitlilik: Organik Kimyaya Giriş","Çeşitlilik: Organik Bileşikler","Sürdürülebilirlik"]
+  },
   Biyoloji:{"9":["Genel Tarama","Yaşam","Organizasyon"],"10":["Genel Tarama","Enerji","Ekoloji"],"11":["Genel Tarama","Tepki","Homeostazi"],"12":["Genel Tarama","Üreme","Gen"]},
   Coğrafya:{"9":commonHighSchoolGeography,"10":commonHighSchoolGeography,"11":commonHighSchoolGeography,"12":commonHighSchoolGeography},
   Tarih:{"9":["Genel Tarama","Geçmişin İnşa Sürecinde Tarih","Eski Çağ Medeniyetleri","Orta Çağ Medeniyetleri"],"10":["Genel Tarama","Türkistan’dan Türkiye’ye (1040-1299)","Beylikten Devlete Osmanlı (1299-1453)","Cihan Devleti Osmanlı (1453-1683)"],"11":["Genel Tarama","Değişen Dünyada Osmanlı Devleti (1683-1789)","Dönüşüm Sürecinde Osmanlı (1789-1908)","Savaşlar Sarmalında Osmanlı (1908-1918)"],"12":["Genel Tarama","20. Yüzyıl Başlarında Osmanlı Devleti ve Dünya","Millî Mücadele","Atatürkçülük ve Türk İnkılabı","İki Savaş Arasındaki Dönemde Türkiye ve Dünya","II. Dünya Savaşı Sürecinde Türkiye ve Dünya","II. Dünya Savaşı Sonrasında Türkiye ve Dünya"]},

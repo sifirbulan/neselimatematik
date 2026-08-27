@@ -14,9 +14,12 @@ function healthPayload() {
     status: "ok",
     openAIConfigured: Boolean(process.env.OPENAI_API_KEY?.trim()),
     geminiConfigured: Boolean(process.env.GEMINI_API_KEY?.trim()),
+    groqConfigured: Boolean(process.env.GROQ_API_KEY?.trim()),
     model: process.env.OPENAI_MODEL?.trim() || "gpt-5.6-terra",
     visionModel: process.env.OPENAI_VISION_MODEL?.trim() || "gpt-5.6",
-    geminiModel: process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash",
+    geminiModel: process.env.GEMINI_MODEL?.trim() || "gemini-3.6-flash",
+    groqModel: process.env.GROQ_MODEL?.trim() || "openai/gpt-oss-120b",
+    groqVisionModel: process.env.GROQ_VISION_MODEL?.trim() || "qwen/qwen3.6-27b",
   };
 }
 

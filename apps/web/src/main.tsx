@@ -8,7 +8,7 @@ import "./hint.css";
 
 const configuredApiUrl=(import.meta.env.VITE_API_URL??"").trim().replace(/\/+$/,"");
 const API_URL=!configuredApiUrl||configuredApiUrl==="https://nesevren-api.onrender.com"?"https://nesevren-api-v2.onrender.com":configuredApiUrl;
-const subjects=["Otomatik","Matematik","Fen Bilimleri","Fizik","Kimya","Biyoloji","Türkçe","Türk Dili ve Edebiyatı","Sosyal Bilgiler","Tarih","Coğrafya","Felsefe"];
+const subjects=["Otomatik","Matematik","Fen Bilimleri","Fizik","Kimya","Biyoloji","Türkçe","Türk Dili ve Edebiyatı","İngilizce","Kürtçe","Sosyal Bilgiler","Tarih","Coğrafya","Felsefe"];
 
 function App(){
  const [question,setQuestion]=useState(""); const [subject,setSubject]=useState("Otomatik"); const [showSubject,setShowSubject]=useState(false); const [result,setResult]=useState<SolveResponse|null>(null); const [hintText,setHintText]=useState(""); const [error,setError]=useState(""); const [loading,setLoading]=useState(false); const [hintLoading,setHintLoading]=useState(false); const [teacherOpen,setTeacherOpen]=useState(false); const [photoName,setPhotoName]=useState(""); const [photoPreview,setPhotoPreview]=useState(""); const [originalPhoto,setOriginalPhoto]=useState(""); const [cropSource,setCropSource]=useState(""); const [lastCrop,setLastCrop]=useState<Crop|undefined>(); const photoInput=useRef<HTMLInputElement>(null); const questionInput=useRef<HTMLTextAreaElement>(null);

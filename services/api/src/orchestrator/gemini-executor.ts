@@ -69,7 +69,7 @@ export const geminiExecutor: ProviderExecutor = {
     const apiKey = process.env.GEMINI_API_KEY?.trim();
     if (!apiKey) throw new Error("GEMINI_API_KEY tanımlı değil.");
 
-    const model = process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";
+    const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.6-flash";
     const prompt = buildPrompt(input, analysis);
     const parts: Array<Record<string, unknown>> = [{ text: prompt }];
 

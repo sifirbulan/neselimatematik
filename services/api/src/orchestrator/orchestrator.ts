@@ -5,14 +5,18 @@ import { getExecutor, getRegisteredProviderIds, registerExecutor } from "./execu
 import { geminiExecutor } from "./gemini-executor.js";
 import { groqExecutor } from "./groq-executor.js";
 import { mathEngineExecutor } from "./math-engine-executor.js";
+import { mistralExecutor } from "./mistral-executor.js";
 import { openAIExecutor } from "./openai-executor.js";
+import { openRouterExecutor } from "./openrouter-executor.js";
 import { verifyAnswer } from "./verifier.js";
 import type { AIAnswer, OrchestratorResult, ProviderAttempt, StudentQuestion } from "./types.js";
 
 registerExecutor(mathEngineExecutor);
-registerExecutor(openAIExecutor);
 registerExecutor(geminiExecutor);
 registerExecutor(groqExecutor);
+registerExecutor(mistralExecutor);
+registerExecutor(openRouterExecutor);
+registerExecutor(openAIExecutor);
 
 async function runProvider(
   providerId: string,

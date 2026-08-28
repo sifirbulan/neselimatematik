@@ -1,4 +1,4 @@
-export const gradeLevels=["1","2","3","4","5","6","7","8","9","10","11","12","Mezun / YKS","KPSS / ALES"] as const;
+export const gradeLevels=["1","2","3","4","5","6","7","8","9","10","11","12","LGS","TYT","AYT","KPSS","ALES"] as const;
 
 const geographyUnits=["Genel Tarama","Coğrafyanın Doğası","Mekânsal Bilgi Teknolojileri","Doğal Sistemler ve Süreçler","Beşerî Sistemler ve Süreçler","Ekonomik Faaliyetler ve Etkileri","Afetler ve Sürdürülebilir Çevre","Bölgeler, Ülkeler ve Küresel Bağlantılar"];
 const englishSkills=["Genel Tarama","Listening","Speaking","Reading","Read Aloud & Pronunciation","Writing","Writing Error Check","Vocabulary and Language Use"];
@@ -19,8 +19,11 @@ const curriculum:Record<string,Record<string,string[]>>={
     "10":["Genel Tarama","Geometrik Şekiller","İstatistiksel Araştırma Süreci","Sayılar","Nicelikler ve Değişimler","Sayma, Algoritma ve Bilişim","Analitik İnceleme","Veriden Olasılığa"],
     "11":["Genel Tarama","İstatistiksel Araştırma Süreci","Geometrik Şekiller","Nicelikler ve Değişimler (1)","Nicelikler ve Değişimler (2)","Nicelikler ve Değişimler (3)"],
     "12":["Genel Tarama","Nicelikler ve Değişimler (1)","Nicelikler ve Değişimler (2)","Geometrik Şekiller","Geometrik Cisimler","Değişimin Matematiği (1)","Değişimin Matematiği (2)","Değişimin Matematiği (3)","Hazır Veriler Üzerinde Çalışma"],
-    "Mezun / YKS":["Genel Tarama","TYT Matematik","AYT Matematik","Geometri","Fonksiyonlar","Trigonometri","Limit","Türev","İntegral"],
-    "KPSS / ALES":["Genel Tarama","Temel Kavramlar","Sayılar","Problemler","Oran-Orantı","Cebir","Geometri","Veri ve Mantık"]
+    "LGS":["Genel Tarama","Çarpanlar ve Katlar","Üslü İfadeler","Kareköklü İfadeler","Veri Analizi","Basit Olayların Olma Olasılığı","Cebirsel İfadeler ve Özdeşlikler","Doğrusal Denklemler","Eşitsizlikler","Üçgenler","Eşlik ve Benzerlik","Dönüşüm Geometrisi","Geometrik Cisimler"],
+    "TYT":["Genel Tarama","Temel Kavramlar","Sayı Basamakları","Bölme ve Bölünebilme","EBOB-EKOK","Rasyonel Sayılar","Basit Eşitsizlikler","Mutlak Değer","Üslü Sayılar","Köklü Sayılar","Çarpanlara Ayırma","Oran-Orantı","Denklemler","Problemler","Kümeler ve Kartezyen Çarpım","Fonksiyonlar","Sayma ve Olasılık","İstatistik","Geometri"],
+    "AYT":["Genel Tarama","Fonksiyonlar","Polinomlar","İkinci Dereceden Denklemler","Parabol","Eşitsizlikler","Trigonometri","Logaritma","Diziler","Permütasyon-Kombinasyon-Olasılık","Binom","Analitik Geometri","Limit","Türev","İntegral"],
+    "KPSS":["Genel Tarama","Temel Kavramlar","Sayılar","Bölünebilme","EBOB-EKOK","Rasyonel Sayılar","Üslü ve Köklü Sayılar","Denklemler ve Eşitsizlikler","Oran-Orantı","Problemler","Kümeler","Sayısal Mantık","Tablo ve Grafik Yorumlama","Geometri"],
+    "ALES":["Genel Tarama","Temel Kavramlar","Sayılar","Bölünebilme","Rasyonel Sayılar","Üslü ve Köklü Sayılar","Denklemler","Oran-Orantı","Problemler","Sayısal Mantık","Tablo ve Grafik Yorumlama","Geometri"]
   },
   Türkçe:{
     "1":["Genel Tarama","Güzel Davranışlarımız","Mustafa Kemal’den Atatürk’e","Çevremizdeki Yaşam","Yol Arkadaşımız Kitaplar","Yeteneklerimizi Keşfediyoruz","Minik Kâşifler","Atalarımızın İzleri","Sorumluluklarımızın Farkındayız"],

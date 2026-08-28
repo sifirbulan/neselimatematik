@@ -24,11 +24,11 @@ describe("Gemini Google Search grounding policy", () => {
     expect(shouldUseGoogleSearch({ ...baseInput, question: "Bu konuyu Google'da araştır ve kaynak göster." }, baseAnalysis)).toBe(true);
   });
 
-  it("olgusal derslerde Google Search doğrulamasını etkinleştirir", () => {
+  it("sabit ders bilgisinde gereksiz Google Search çağrısı yapmaz", () => {
     expect(shouldUseGoogleSearch(
       { ...baseInput, question: "Fotosentezin temel aşamalarını açıkla." },
       { ...baseAnalysis, topic: "Biyoloji" },
-    )).toBe(true);
+    )).toBe(false);
   });
 
   it("test üretiminde ve ipucu isteklerinde web aramasını kapalı tutar", () => {

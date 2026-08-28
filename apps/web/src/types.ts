@@ -19,20 +19,12 @@ export type VisualizationSpec =
   | { type:"function"|"integral"; title?:string; expression:string; xMin?:number; xMax?:number; lower?:number; upper?:number; }
   | { type:"geometry"; title?:string; points:GeometryPoint[]; segments:GeometrySegment[]; angles:GeometryAngle[]; circles:GeometryCircle[]; };
 
-export interface SearchSource {
-  title: string;
-  url: string;
-}
-
 export interface SolutionAnswer {
   answer: string;
   explanation: string;
   steps: string[];
   hint?: string;
   visualization?: VisualizationSpec;
-  sources?: SearchSource[];
-  webSearchQueries?: string[];
-  googleSearchEntryPoint?: string;
   verified: boolean;
   verificationStatus: VerificationStatus;
   confidence: number;

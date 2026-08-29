@@ -1,7 +1,7 @@
 import type { ExamType, InputType, StudentIntent, StudentQuestion } from "./orchestrator/types.js";
 
 const inputTypes: InputType[] = ["text", "image", "voice"];
-const intents: StudentIntent[] = ["solve", "hint", "teach", "generate_test", "explain_audio"];
+const intents: StudentIntent[] = ["solve", "hint", "verify", "teach", "generate_test", "explain_audio"];
 const exams: ExamType[] = ["LGS", "TYT", "AYT", "KPSS", "ALES", "NONE"];
 const IMAGE_DATA_URL = /^data:image\/(jpeg|png|webp);base64,/i;
 

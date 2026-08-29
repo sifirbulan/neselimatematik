@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { desiredProviderCount, isQuestionSetRequest, providerOrder } from "./orchestrator.js";
+import { desiredProviderCount, isQuestionSetRequest, isVerifyRequest, providerOrder } from "./orchestrator.js";
 import type { QuestionAnalysis, StudentQuestion } from "./types.js";
 
 const registered=["math-engine","deepseek","claude"];
@@ -16,7 +16,13 @@ describe("Neşevren sağlayıcı yönlendirmesi",()=>{
   });
 
   it("öğrencinin kendi çözümünü doğrularken DeepSeek'i ana kullanır",()=>{
-    expect(providerOrder({...baseInput,question:"Soru: 2x+5=17. Öğrenci cevabı: x=5",intent:"verify"},{...baseAnalysis,topic:"Matematik"},registered)).toEqual(["deepseek","claude"]);
+    expect(providerOrder({...baseInput,question:"Soru: 2x+5=17. Öğrencinin cevabı: x=5",intent:"verify"},{...baseAnalysis,topic:"Matematik"},registered)).toEqual(["deepseek","claude"]);
+  });
+
+  it("eski Doğrula düğmesi istemini de doğrulama isteği olarak algılar",()=>{
+    const input={...baseInput,question:"2x+5=17. Öğrencinin cevabı: x=5. Doğruysa kısa gerekçe ver; yanlışsa doğru cevabı söylemeden ilk hata noktasını açıkla."};
+    expect(isVerifyRequest(input)).toBe(true);
+    expect(providerOrder(input,{...baseAnalysis,topic:"Matematik"},registered)).toEqual(["deepseek","claude"]);
   });
 
   it("görsel sorularda yalnızca Claude kullanır",()=>{

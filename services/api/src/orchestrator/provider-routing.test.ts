@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { desiredProviderCount, providerOrder } from "./orchestrator.js";
+import { desiredProviderCount, isQuestionSetRequest, providerOrder } from "./orchestrator.js";
 import type { QuestionAnalysis, StudentQuestion } from "./types.js";
 
 const registered=["math-engine","deepseek","claude"];
@@ -21,6 +21,19 @@ describe("Neşevren sağlayıcı yönlendirmesi",()=>{
 
   it("diğer derslerde Claude ana, DeepSeek yedek olur",()=>{
     expect(providerOrder({...baseInput,question:"Fotosentezi açıkla"},{...baseAnalysis,topic:"Biyoloji"},registered)).toEqual(["claude","deepseek"]);
+  });
+
+  it("3 Soru Hazırla isteğini test üretimi olarak algılar ve matematik motorunu atlar",()=>{
+    const input={...baseInput,question:"Orijinal soruya benzer TAM OLARAK 3 yeni çoktan seçmeli soru üret. answer alanına yalnızca geçerli JSON dizi yaz."};
+    expect(isQuestionSetRequest(input)).toBe(true);
+    expect(providerOrder(input,{...baseAnalysis,topic:"Matematik"},registered)).toEqual(["deepseek","claude"]);
+    expect(desiredProviderCount(input,{...baseAnalysis,topic:"Matematik",difficulty:"hard"})).toBe(1);
+  });
+
+  it("seviye belirleme ve Hata Kitapçığı testlerinde matematikte DeepSeek'i, diğer derslerde Claude'u öne alır",()=>{
+    const testInput={...baseInput,intent:"generate_test" as const,question:"Matematik dersi için seviye belirleme testi hazırla."};
+    expect(providerOrder(testInput,{...baseAnalysis,topic:"Matematik"},registered)).toEqual(["deepseek","claude"]);
+    expect(providerOrder({...testInput,question:"Biyoloji dersi için 3 benzer soru üret."},{...baseAnalysis,topic:"Biyoloji"},registered)).toEqual(["claude","deepseek"]);
   });
 
   it("normal soruda tek sağlayıcı, yalnızca zor metin sorusunda iki sağlayıcı ister",()=>{

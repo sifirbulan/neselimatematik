@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import { orchestrateAssessmentBatches } from "./assessment-batching.js";
 import { orchestrateQuestion } from "./orchestrator/orchestrator.js";
 import { ValidationError, validateQuestionRequest } from "./validation.js";
 
@@ -27,6 +28,9 @@ function publicProviderMessage(detail:string,isImageRequest:boolean){
       ? "Fotoğraflı soru çözümü Claude API kredisi yüklendiğinde aktif olacak. Şimdilik soruyu yazarak veya sesli sorabilirsiniz."
       : "Claude kredisi şu anda yetersiz; metin işlemlerinde DeepSeek yedeği kullanılmaya çalışıldı.";
   }
+  if(/seviye testi parçası|Seviye testinin tüm parçaları|Seviye testi toplam/i.test(detail)){
+    return "Seviye testi parçalarından biri tamamlanamadı. Lütfen testi yeniden başlatın.";
+  }
   return isImageRequest
     ? "Fotoğraf yapay zekâ tarafından okunamadı. Lütfen tekrar deneyin."
     : "Yapay zekâ çözüm servisine şu anda ulaşılamıyor. Lütfen biraz sonra tekrar deneyin.";
@@ -40,7 +44,7 @@ app.post("/api/v1/questions/analyze", async (req, res) => {
   try {
     const input = validateQuestionRequest(req.body);
     isImageRequest = input.inputType === "image";
-    const result = await orchestrateQuestion(input);
+    const result = await orchestrateAssessmentBatches(input, orchestrateQuestion);
     return res.json({
       status: "completed",
       question: input.question || (input.inputType === "image" ? "Fotoğraftaki soru" : ""),

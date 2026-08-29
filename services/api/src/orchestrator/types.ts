@@ -1,5 +1,5 @@
 export type InputType = "text" | "image" | "voice";
-export type StudentIntent = "solve" | "hint" | "teach" | "generate_test" | "explain_audio";
+export type StudentIntent = "solve" | "hint" | "verify" | "teach" | "generate_test" | "explain_audio";
 export type ExamType = "LGS" | "TYT" | "AYT" | "KPSS" | "ALES" | "NONE";
 export type Difficulty = "easy" | "medium" | "hard" | "unknown";
 export type VerificationStatus = "verified" | "failed" | "pending" | "not_applicable";

@@ -27,6 +27,12 @@ export function isVerifyRequest(input:StudentQuestion){
   return text.includes("öğrencinin cevabı:")&&(/doğruysa|yanlışsa|ilk hata noktasını/i.test(text));
 }
 
+export function isCoachRequest(input:StudentQuestion){
+  if(input.inputType!=="text"||input.intent!=="solve")return false;
+  const text=input.question.toLocaleLowerCase("tr-TR");
+  return text.includes("neşevren'in kişiye özel eğitim koçu")||text.includes("kişisel eğitim yol haritası oluştur");
+}
+
 function executionInput(input:StudentQuestion):StudentQuestion{
   // Eski istemlerden gelen buton taleplerini yeni özel intent'lere dönüştür.
   if(input.intent==="solve"&&isQuestionSetRequest(input))return{...input,intent:"generate_test"};
@@ -41,7 +47,7 @@ async function runProvider(providerId:string,input:StudentQuestion,analysis:Retu
 }
 
 function applyVerification(input:StudentQuestion,answer:AIAnswer):AIAnswer{
-  if(input.intent==="generate_test"||input.intent==="verify")return{...answer,verified:false,verificationStatus:"not_applicable"};
+  if(input.intent==="generate_test"||input.intent==="verify"||isCoachRequest(input))return{...answer,verified:false,verificationStatus:"not_applicable"};
   if(answer.verified&&answer.verificationStatus==="verified")return answer;
   const verification=verifyAnswer(input.question,answer);
   if(verification.status==="verified")return{...answer,verified:true,verificationStatus:"verified",confidence:Math.max(answer.confidence,.96)};
@@ -51,6 +57,10 @@ function applyVerification(input:StudentQuestion,answer:AIAnswer):AIAnswer{
 
 export function providerOrder(input:StudentQuestion,analysis:ReturnType<typeof analyzeQuestion>,registered:string[]){
   if(input.inputType==="image")return["claude"].filter(id=>registered.includes(id));
+
+  // Koçluk istemlerinde prompt içinde matematik konusu geçse bile yerel denklem motoruna uğrama.
+  if(isCoachRequest(input))return["deepseek","claude"].filter(id=>registered.includes(id));
+
   const mathLike=analysis.topic==="Matematik";
 
   // Test, benzer soru, ipucu ve öğrenci çözümü doğrulama doğrudan AI görevidir.
@@ -110,6 +120,6 @@ export async function orchestrateQuestion(input:StudentQuestion):Promise<Orchest
     providersUsed:successful.map(i=>i.providerId),
     agreementScore:consensus.agreementScore,
     finalAnswerSource:finalAnswer===localMathAnswer?"deterministic-math-engine":finalAnswer.verified?"deterministic-verification":successful[0].providerId,
-    message:providerInput.intent==="generate_test"?"Soru seti hazırlandı.":providerInput.intent==="verify"?"Öğrenci çözümü kontrol edildi.":finalAnswer.verified?"Çözüm üretildi ve matematiksel olarak doğrulandı.":"Çözüm üretildi.",
+    message:providerInput.intent==="generate_test"?"Soru seti hazırlandı.":providerInput.intent==="verify"?"Öğrenci çözümü kontrol edildi.":isCoachRequest(providerInput)?"Kişisel koçluk planı hazırlandı.":finalAnswer.verified?"Çözüm üretildi ve matematiksel olarak doğrulandı.":"Çözüm üretildi.",
   };
 }

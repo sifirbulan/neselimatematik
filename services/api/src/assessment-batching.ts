@@ -95,21 +95,22 @@ function mergeBatchResults(results: OrchestratorResult[], plan: AssessmentBatchP
 export async function orchestrateAssessmentBatches(input: StudentQuestion, orchestrate: Orchestrate): Promise<OrchestratorResult> {
   const plan = getAssessmentBatchPlan(input);
   if (!plan || plan.batchCount <= 1) return orchestrate(input);
+  const batchPlan: AssessmentBatchPlan = plan;
 
-  const results = new Array<OrchestratorResult>(plan.batchCount);
+  const results = new Array<OrchestratorResult>(batchPlan.batchCount);
   let cursor = 0;
-  const workerCount = Math.min(2, plan.batchCount);
+  const workerCount = Math.min(2, batchPlan.batchCount);
 
   async function worker() {
     while (true) {
       const batchIndex = cursor;
       cursor += 1;
-      if (batchIndex >= plan.batchCount) return;
-      const batchInput = buildAssessmentBatchInput(input, plan, batchIndex);
+      if (batchIndex >= batchPlan.batchCount) return;
+      const batchInput = buildAssessmentBatchInput(input, batchPlan, batchIndex);
       results[batchIndex] = await orchestrate(batchInput);
     }
   }
 
   await Promise.all(Array.from({ length: workerCount }, () => worker()));
-  return mergeBatchResults(results, plan);
+  return mergeBatchResults(results, batchPlan);
 }

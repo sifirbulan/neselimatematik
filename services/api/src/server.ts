@@ -21,6 +21,17 @@ function healthPayload() {
   };
 }
 
+function publicProviderMessage(detail:string,isImageRequest:boolean){
+  if(/Claude API kredisi yetersiz/i.test(detail)){
+    return isImageRequest
+      ? "Fotoğraflı soru çözümü Claude API kredisi yüklendiğinde aktif olacak. Şimdilik soruyu yazarak veya sesli sorabilirsiniz."
+      : "Claude kredisi şu anda yetersiz; metin işlemlerinde DeepSeek yedeği kullanılmaya çalışıldı.";
+  }
+  return isImageRequest
+    ? "Fotoğraf yapay zekâ tarafından okunamadı. Lütfen tekrar deneyin."
+    : "Yapay zekâ çözüm servisine şu anda ulaşılamıyor. Lütfen biraz sonra tekrar deneyin.";
+}
+
 app.get("/", (_req, res) => res.json(healthPayload()));
 app.get("/health", (_req, res) => res.json(healthPayload()));
 
@@ -47,9 +58,7 @@ app.post("/api/v1/questions/analyze", async (req, res) => {
     return res.status(502).json({
       error: {
         code: isImageRequest ? "VISION_PROVIDER_ERROR" : "AI_PROVIDER_ERROR",
-        message: isImageRequest
-          ? "Fotoğraf yapay zekâ tarafından okunamadı. Lütfen tekrar deneyin."
-          : "Yapay zekâ çözüm servisine şu anda ulaşılamıyor. Lütfen biraz sonra tekrar deneyin.",
+        message: publicProviderMessage(detail,isImageRequest),
         detail,
       },
     });

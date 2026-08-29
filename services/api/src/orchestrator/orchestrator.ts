@@ -20,9 +20,18 @@ export function isQuestionSetRequest(input:StudentQuestion){
   return /(3\s+(?:yeni\s+)?(?:çoktan\s+seçmeli\s+)?soru|3\s+benzer\s+soru|çoktan\s+seçmeli\s+soru\s+üret|answer alanına yalnızca geçerli json dizi)/i.test(text);
 }
 
+export function isVerifyRequest(input:StudentQuestion){
+  if(input.intent==="verify")return true;
+  if(input.intent!=="solve")return false;
+  const text=input.question.toLocaleLowerCase("tr-TR");
+  return text.includes("öğrencinin cevabı:")&&(/doğruysa|yanlışsa|ilk hata noktasını/i.test(text));
+}
+
 function executionInput(input:StudentQuestion):StudentQuestion{
-  // Eski istemlerden gelen 3 soru üretme taleplerini de test üretimi olarak ele al.
-  return input.intent==="solve"&&isQuestionSetRequest(input)?{...input,intent:"generate_test"}:input;
+  // Eski istemlerden gelen buton taleplerini yeni özel intent'lere dönüştür.
+  if(input.intent==="solve"&&isQuestionSetRequest(input))return{...input,intent:"generate_test"};
+  if(input.intent==="solve"&&isVerifyRequest(input))return{...input,intent:"verify"};
+  return input;
 }
 
 async function runProvider(providerId:string,input:StudentQuestion,analysis:ReturnType<typeof analyzeQuestion>):Promise<ProviderAttempt>{
@@ -46,7 +55,7 @@ export function providerOrder(input:StudentQuestion,analysis:ReturnType<typeof a
 
   // Test, benzer soru, ipucu ve öğrenci çözümü doğrulama doğrudan AI görevidir.
   // Yerel matematik motorunu bu isteklerde denemeyerek gereksiz gecikmeyi önleriz.
-  if(isQuestionSetRequest(input)||input.intent==="hint"||input.intent==="verify")return["deepseek","claude"].filter(id=>registered.includes(id));
+  if(isQuestionSetRequest(input)||isVerifyRequest(input)||input.intent==="hint")return["deepseek","claude"].filter(id=>registered.includes(id));
 
   // Basit matematikte önce ücretsiz ve deterministik yerel motor; desteklemezse DeepSeek.
   if(mathLike&&input.intent==="solve")return["math-engine","deepseek","claude"].filter(id=>registered.includes(id));

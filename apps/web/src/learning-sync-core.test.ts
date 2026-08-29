@@ -35,7 +35,7 @@ describe("learning sync core", () => {
         { id: "p3", date: "2026-08-28", updatedAt: 400, totalNet: 80 },
       ],
     );
-    expect(merged.map(item => item.id)).toEqual(["p3", "p1", "p2"]);
+    expect(merged.map(item => item.id)).toEqual(["p3", "p2", "p1"]);
     expect(merged.find(item => item.id === "p1")?.totalNet).toBe(70);
   });
 

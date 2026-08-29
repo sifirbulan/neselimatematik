@@ -18,10 +18,18 @@ export type LearningPerformanceItem = {
   [key: string]: unknown;
 };
 
+export type LearningCoachData = {
+  profile?: Record<string, unknown> | null;
+  tasks?: Array<Record<string, unknown>>;
+  checkins?: Array<Record<string, unknown>>;
+  updatedAt?: number;
+} | null;
+
 export type LearningSnapshot = {
   assessment: LearningAssessment;
   errorBook: LearningErrorItem[];
   performance: LearningPerformanceItem[];
+  coachData: LearningCoachData;
 };
 
 function timestamp(value: unknown) {
@@ -37,6 +45,12 @@ export function newerAssessment(local: LearningAssessment, remote: LearningAsses
   if (!local) return remote ?? null;
   if (!remote) return local;
   return timestamp(local.createdAt) >= timestamp(remote.createdAt) ? local : remote;
+}
+
+export function newerCoachData(local: LearningCoachData, remote: LearningCoachData): LearningCoachData {
+  if (!local) return remote ?? null;
+  if (!remote) return local;
+  return timestamp(local.updatedAt) >= timestamp(remote.updatedAt) ? local : remote;
 }
 
 export function mergeErrorBooks(local: LearningErrorItem[], remote: LearningErrorItem[]): LearningErrorItem[] {
@@ -80,5 +94,6 @@ export function mergeLearningSnapshots(local: LearningSnapshot, remote: Learning
     assessment: newerAssessment(local.assessment, remote.assessment),
     errorBook: mergeErrorBooks(local.errorBook, remote.errorBook),
     performance: mergePerformanceRecords(local.performance, remote.performance),
+    coachData: newerCoachData(local.coachData, remote.coachData),
   };
 }

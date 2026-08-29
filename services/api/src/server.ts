@@ -12,20 +12,12 @@ function healthPayload() {
   return {
     service: "nesevren-api",
     status: "ok",
-    openAIConfigured: Boolean(process.env.OPENAI_API_KEY?.trim()),
-    geminiConfigured: Boolean(process.env.GEMINI_API_KEY?.trim()),
-    groqConfigured: Boolean(process.env.GROQ_API_KEY?.trim()),
-    mistralConfigured: Boolean(process.env.MISTRAL_API_KEY?.trim()),
-    openRouterConfigured: Boolean(process.env.OPENROUTER_API_KEY?.trim()),
-    model: process.env.OPENAI_MODEL?.trim() || "gpt-5.6-terra",
-    visionModel: process.env.OPENAI_VISION_MODEL?.trim() || "gpt-5.6",
-    geminiModel: process.env.GEMINI_MODEL?.trim() || "gemini-3.6-flash",
-    groqModel: process.env.GROQ_MODEL?.trim() || "openai/gpt-oss-120b",
-    groqVisionModel: process.env.GROQ_VISION_MODEL?.trim() || "qwen/qwen3.6-27b",
-    mistralModel: process.env.MISTRAL_MODEL?.trim() || "mistral-small-latest",
-    mistralVisionModel: process.env.MISTRAL_VISION_MODEL?.trim() || "mistral-small-2506",
-    openRouterModel: process.env.OPENROUTER_MODEL?.trim() || "openrouter/free",
-    openRouterVisionModel: process.env.OPENROUTER_VISION_MODEL?.trim() || "openrouter/free",
+    activeProviders: ["math-engine", "deepseek", "claude"],
+    claudeConfigured: Boolean((process.env.ANTHROPIC_API_KEY ?? process.env.CLAUDE_API_KEY)?.trim()),
+    claudeWorkspaceConfigured: Boolean(process.env.ANTHROPIC_WORKSPACE_ID?.trim()),
+    deepSeekConfigured: Boolean(process.env.DEEPSEEK_API_KEY?.trim()),
+    claudeModel: process.env.CLAUDE_MODEL?.trim() || "claude-sonnet-4-20250514",
+    deepSeekModel: process.env.DEEPSEEK_MODEL?.trim() || "deepseek-v4-flash",
   };
 }
 
@@ -40,7 +32,7 @@ app.post("/api/v1/questions/analyze", async (req, res) => {
     const result = await orchestrateQuestion(input);
     return res.json({
       status: "completed",
-      question: input.question || (input.inputType === "image" ? "Fotoğraftaki matematik sorusu" : ""),
+      question: input.question || (input.inputType === "image" ? "Fotoğraftaki soru" : ""),
       ...result,
       finalAnswer: result.answer,
       next: result.answer?.verificationStatus === "verified" ? "completed" : "verification-pending",

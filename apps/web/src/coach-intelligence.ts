@@ -6,6 +6,7 @@ export interface CoachProfile {
 }
 
 export interface CoachAssessment {
+  subject?: string;
   score?: number;
   total?: number;
   level?: string;
@@ -79,6 +80,14 @@ const DAY=24*60*60*1000;
 
 function clamp(value:number,min=0,max=100){return Math.max(min,Math.min(max,value))}
 function cleanText(value:unknown,fallback:string){const text=String(value??"").trim();return text||fallback}
+function weaknessLabel(subject:unknown,topic:unknown){
+  const cleanSubject=cleanText(subject,"");
+  const cleanTopic=cleanText(topic,"Genel tekrar");
+  return cleanSubject?`${cleanSubject} · ${cleanTopic}`:cleanTopic;
+}
+function weakSubjectList(value:unknown){
+  return String(value??"").split(/[,;|/]+/).map(item=>item.trim()).filter(Boolean).slice(0,4);
+}
 
 export function buildCoachInsight(input:CoachInsightInput):CoachInsight {
   const now=input.now??Date.now();
@@ -108,19 +117,24 @@ export function buildCoachInsight(input:CoachInsightInput):CoachInsight {
   if(assessment?.topicStats){
     Object.entries(assessment.topicStats).forEach(([topic,stat])=>{
       const wrong=Math.max(0,Number(stat?.wrong)||0);
-      if(wrong)topicWeights.set(topic,(topicWeights.get(topic)??0)+wrong*3);
+      if(!wrong)return;
+      const key=weaknessLabel(assessment.subject,topic);
+      topicWeights.set(key,(topicWeights.get(key)??0)+wrong*3);
     });
   }
   for(const topic of assessment?.weakTopics??[]){
-    const key=cleanText(topic,"Genel tekrar");
+    const key=weaknessLabel(assessment?.subject,topic);
     topicWeights.set(key,(topicWeights.get(key)??0)+2);
   }
   errors.forEach(item=>{
-    const topic=cleanText(item.topic,"Genel tekrar");
+    const key=weaknessLabel(item.subject,item.topic);
     const mistakes=Math.max(1,Number(item.mistakeCount)||1);
     const recovery=Math.max(0,Number(item.retryCorrect)||0);
-    topicWeights.set(topic,(topicWeights.get(topic)??0)+Math.max(1,mistakes*2-recovery));
+    topicWeights.set(key,(topicWeights.get(key)??0)+Math.max(1,mistakes*2-recovery));
   });
+  if(topicWeights.size===0){
+    weakSubjectList(profile.weakSubjects).forEach(subject=>topicWeights.set(`${subject} · Genel tekrar`,1));
+  }
   const topWeakTopics=[...topicWeights.entries()]
     .map(([topic,weight])=>({topic,weight}))
     .sort((a,b)=>b.weight-a.weight)
@@ -136,9 +150,9 @@ export function buildCoachInsight(input:CoachInsightInput):CoachInsight {
   const plannedWeeklyMinutes=Math.max(60,Math.round((Number(profile.weeklyHours)||6)*60));
   const studyRatio=clamp(studyMinutes7d/plannedWeeklyMinutes*100);
   const consistencyScore=clamp(activeDays7d/5*100);
-  const focusScore=averageFocus7d===null?50:clamp(averageFocus7d/5*100);
-  const taskScore=tasks.length?clamp(completedTasks.length/tasks.length*100):50;
-  const rhythmPercent=Math.round(studyRatio*.45+consistencyScore*.25+focusScore*.2+taskScore*.1);
+  const focusScore=averageFocus7d===null?0:clamp(averageFocus7d/5*100);
+  const taskScore=tasks.length?clamp(completedTasks.length/tasks.length*100):0;
+  const rhythmPercent=recentCheckins.length===0?0:Math.round(studyRatio*.5+consistencyScore*.3+focusScore*.15+taskScore*.05);
 
   const dailyBudget=Math.max(20,Math.min(150,Math.round(plannedWeeklyMinutes/6)));
   const actions:CoachRoadmapAction[]=[];
@@ -153,7 +167,8 @@ export function buildCoachInsight(input:CoachInsightInput):CoachInsight {
   }
 
   if(openTasks.length){
-    const task=openTasks.find(item=>item.due)?.title??openTasks[0]?.title??"Açık görev";
+    const dated=openTasks.filter(item=>item.due).sort((a,b)=>String(a.due).localeCompare(String(b.due)));
+    const task=dated[0]?.title??openTasks[0]?.title??"Açık görev";
     actions.push({kind:"task",title:cleanText(task,"Açık görevi tamamla"),detail:"Mevcut görevlerinden birini bugün bitirerek planı kapat.",minutes:Math.min(40,dailyBudget)});
   }
 
@@ -170,13 +185,24 @@ export function buildCoachInsight(input:CoachInsightInput):CoachInsight {
     actions.push({kind:"practice",title:"Seviyeni koru",detail:"Güçlü olduğun konudan 3 yeni soru çöz, yanlış çıkarsa Hata Kitapçığına dön.",minutes:Math.min(30,dailyBudget)});
   }
 
-  const trimmedActions=actions.slice(0,4);
+  const maxActions=Math.max(1,Math.min(4,Math.floor(dailyBudget/15)));
+  const selectedActions=actions.slice(0,maxActions);
+  let remaining=dailyBudget;
+  const trimmedActions=selectedActions.map((action,index)=>{
+    const remainingActions=selectedActions.length-index-1;
+    const reserve=remainingActions*10;
+    const minutes=Math.max(10,Math.min(action.minutes,Math.max(10,remaining-reserve)));
+    remaining=Math.max(0,remaining-minutes);
+    return{...action,minutes};
+  });
+
   const status=assessmentPercent===null
     ? "Seviye verin henüz eksik"
     : assessmentPercent>=85?"Akademik temelin güçlü görünüyor"
     : assessmentPercent>=65?"Temel iyi; belirli açıkları kapatmaya odaklan"
     : "Önce temel açıkları sistemli biçimde kapat";
-  const summary=`${status}. Son 7 günde ${studyMinutes7d} dakika çalışma, ${activeDays7d} aktif gün ve ${errors.length} hata kaydı var. Bugünkü plan ${trimmedActions.length} önceliğe indirildi.`;
+  const goal=cleanText(profile.goal,"genel gelişim");
+  const summary=`${status}. Hedefin: ${goal}. Son 7 günde ${studyMinutes7d} dakika çalışma, ${activeDays7d} aktif gün ve ${errors.length} hata kaydı var. Bugünkü plan ${trimmedActions.length} önceliğe ve toplam en fazla ${dailyBudget} dakikaya indirildi.`;
 
   return {
     assessmentPercent,

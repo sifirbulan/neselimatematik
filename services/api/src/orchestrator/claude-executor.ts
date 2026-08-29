@@ -75,6 +75,9 @@ export const claudeExecutor:ProviderExecutor={providerId:"claude",async execute(
     if(response.status===400&&/anthropic-workspace-id is required/i.test(detail)&&!workspaceId){
       throw new Error("Claude anahtarı workspace kimliği istiyor. Render Environment'a ANTHROPIC_WORKSPACE_ID ekleyin.");
     }
+    if(/credit balance is too low|purchase credits|insufficient.*credit/i.test(detail)){
+      throw new Error("Claude API kredisi yetersiz. Metin sorularında DeepSeek kullanılabilir; fotoğraflı soru çözümü Claude kredisi yüklendiğinde aktif olacak.");
+    }
     throw new Error(`Claude çağrısı başarısız: ${response.status} ${detail}`);
   }
   const output=(payload.content??[]).filter(p=>p.type==="text").map(p=>p.text??"").join("").trim();

@@ -9,6 +9,16 @@ export function buildIntentGuidance(intent: StudentIntent): string[] {
       "JSON alanlarını koru: answer alanına 'Gizli' yaz, explanation ve steps alanlarını kısa tut, asıl yönlendirmeyi hint alanında ver.",
     ];
   }
+  if (intent === "verify") {
+    return [
+      "Bu istek öğrencinin kendi çözümünü kontrol etmek içindir.",
+      "Önce öğrencinin yazdığı çözüm veya cevabın doğru olup olmadığını değerlendir.",
+      "Doğruysa answer alanında 'Doğru' yaz ve çok kısa gerekçe ver.",
+      "Yanlışsa answer alanında 'Tekrar dene' yaz; nihai cevabı veya doğru şıkkı açıklama.",
+      "Yanlış çözümde öğrencinin ilk hata yaptığı adımı explanation alanında açıkla ve hint alanında bir sonraki doğru adım için kısa yönlendirme ver.",
+      "Öğrencinin yazmadığı ara adımları ona aitmiş gibi varsayma.",
+    ];
+  }
   if (intent === "generate_test") {
     return [
       "Bu istek uygulama tarafından makineyle ayrıştırılacak test verisi üretir; answer alanındaki JSON kesinlikle geçerli olmalıdır.",

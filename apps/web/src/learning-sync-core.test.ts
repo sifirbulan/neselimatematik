@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mergeErrorBooks, mergeLearningSnapshots, mergePerformanceRecords, newerAssessment } from "./learning-sync-core";
+import { mergeErrorBooks, mergeLearningSnapshots, mergePerformanceRecords, newerAssessment, newerCoachData } from "./learning-sync-core";
 
 describe("learning sync core", () => {
   it("daha yeni seviye sonucunu korur", () => {
@@ -39,13 +39,21 @@ describe("learning sync core", () => {
     expect(merged.find(item => item.id === "p1")?.totalNet).toBe(70);
   });
 
+  it("koçluk verilerinde daha yeni cihaz durumunu korur",()=>{
+    const local={updatedAt:300,profile:{level:"8"},tasks:[{id:"a",done:true}],checkins:[]};
+    const remote={updatedAt:200,profile:{level:"7"},tasks:[{id:"a",done:false}],checkins:[]};
+    expect(newerCoachData(local,remote)).toEqual(local);
+    expect(newerCoachData(remote,local)).toEqual(local);
+  });
+
   it("yerel ve bulut öğrenme anlık görüntülerini kayıpsız birleştirir", () => {
     const merged = mergeLearningSnapshots(
-      { assessment: { createdAt: 10, level: "Gelişiyor" }, errorBook: [{ id: "yerel", lastSeenAt: 20 }], performance: [{ id: "p-yerel", updatedAt: 25 }] },
-      { assessment: { createdAt: 30, level: "İyi" }, errorBook: [{ id: "bulut", lastSeenAt: 40 }], performance: [{ id: "p-bulut", updatedAt: 50 }] },
+      { assessment: { createdAt: 10, level: "Gelişiyor" }, errorBook: [{ id: "yerel", lastSeenAt: 20 }], performance: [{ id: "p-yerel", updatedAt: 25 }], coachData:{updatedAt:60,profile:{level:"8"},tasks:[],checkins:[]} },
+      { assessment: { createdAt: 30, level: "İyi" }, errorBook: [{ id: "bulut", lastSeenAt: 40 }], performance: [{ id: "p-bulut", updatedAt: 50 }], coachData:{updatedAt:55,profile:{level:"7"},tasks:[],checkins:[]} },
     );
     expect(merged.assessment?.level).toBe("İyi");
     expect(merged.errorBook.map(item => item.id)).toEqual(["bulut", "yerel"]);
     expect(merged.performance.map(item => item.id)).toEqual(["p-bulut", "p-yerel"]);
+    expect(merged.coachData?.profile?.level).toBe("8");
   });
 });

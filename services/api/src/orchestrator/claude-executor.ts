@@ -40,13 +40,22 @@ function parseDataUrl(dataUrl:string){const match=/^data:([^;,]+);base64,(.+)$/s
 
 function requestTimeout(input:StudentQuestion){if(input.intent==="generate_test")return 60000;if(input.inputType==="image")return 35000;return 20000}
 
-async function callClaude(apiKey:string,model:string,input:StudentQuestion,prompt:string){
+function claudeHeaders(apiKey:string,workspaceId?:string):Record<string,string>{
+  return{
+    "content-type":"application/json",
+    "x-api-key":apiKey,
+    "anthropic-version":"2023-06-01",
+    ...(workspaceId?{"anthropic-workspace-id":workspaceId}:{}),
+  };
+}
+
+async function callClaude(apiKey:string,workspaceId:string|undefined,model:string,input:StudentQuestion,prompt:string){
   const content:Array<Record<string,unknown>>=[];
   if(input.inputType==="image"&&input.imageDataUrl){const image=parseDataUrl(input.imageDataUrl);content.push({type:"image",source:{type:"base64",media_type:image.mediaType,data:image.data}})}
   content.push({type:"text",text:prompt});
   const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),requestTimeout(input));
   try{
-    return await fetch("https://api.anthropic.com/v1/messages",{method:"POST",signal:controller.signal,headers:{"content-type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},body:JSON.stringify({model,max_tokens:input.intent==="generate_test"?12000:2400,messages:[{role:"user",content}]})});
+    return await fetch("https://api.anthropic.com/v1/messages",{method:"POST",signal:controller.signal,headers:claudeHeaders(apiKey,workspaceId),body:JSON.stringify({model,max_tokens:input.intent==="generate_test"?12000:2400,messages:[{role:"user",content}]})});
   }finally{clearTimeout(timer)}
 }
 
@@ -55,13 +64,22 @@ type ClaudeResponse={content?:Array<{type?:string;text?:string}>;error?:{message
 export const claudeExecutor:ProviderExecutor={providerId:"claude",async execute(input,analysis){
   const apiKey=process.env.ANTHROPIC_API_KEY?.trim()||process.env.CLAUDE_API_KEY?.trim();
   if(!apiKey)throw new Error("ANTHROPIC_API_KEY tanımlı değil.");
+  const workspaceId=process.env.ANTHROPIC_WORKSPACE_ID?.trim()||undefined;
   const model=process.env.CLAUDE_MODEL?.trim()||"claude-sonnet-4-20250514";
   const prompt=buildPrompt(input,analysis);
   let response:Response;
-  try{response=await callClaude(apiKey,model,input,prompt)}catch(error){if(error instanceof Error&&error.name==="AbortError")throw new Error("Claude yanıt süresini aştı.");throw error}
+  try{response=await callClaude(apiKey,workspaceId,model,input,prompt)}catch(error){if(error instanceof Error&&error.name==="AbortError")throw new Error("Claude yanıt süresini aştı.");throw error}
   const payload=await response.json() as ClaudeResponse;
-  if(!response.ok)throw new Error(`Claude çağrısı başarısız: ${response.status} ${payload.error?.message??response.statusText}`);
+  if(!response.ok){
+    const detail=payload.error?.message??response.statusText;
+    if(response.status===400&&/anthropic-workspace-id is required/i.test(detail)&&!workspaceId){
+      throw new Error("Claude anahtarı workspace kimliği istiyor. Render Environment'a ANTHROPIC_WORKSPACE_ID ekleyin.");
+    }
+    throw new Error(`Claude çağrısı başarısız: ${response.status} ${detail}`);
+  }
   const output=(payload.content??[]).filter(p=>p.type==="text").map(p=>p.text??"").join("").trim();
   if(!output)throw new Error("Claude boş cevap döndürdü.");
   return parseAnswer(output);
 }};
+
+export { claudeHeaders };

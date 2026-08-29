@@ -25,12 +25,17 @@ function detectTopic(text: string): { topic: string; subtopic: string } {
   const clean = contentOnly(text);
   const value = clean.toLocaleLowerCase("tr-TR");
 
+  // Seviye belirleme, 3 soru üretimi ve Hata Kitapçığı istemleri dersi açıkça adlandırır.
+  // Bu açık ders adlarını önce yakalamak sağlayıcı yönlendirmesini güvenilir kılar.
+  if (/\bmatematik\b/i.test(value)) return { topic: "Matematik", subtopic: "Genel" };
   if (/\b(english|ingilizce|grammar|vocabulary|tense|passive voice|relative clause)\b/i.test(value)) return { topic: "İngilizce", subtopic: "Dil Becerileri" };
   if (/\b(kürtçe|kurmanc[iî]|zazak[iî]|soran[iî]|kurdî|kurdçe)\b/i.test(value)) return { topic: "Kürtçe", subtopic: "Dil Becerileri" };
+  if (/\b(arapça|arabic)\b/i.test(value)) return { topic: "Arapça", subtopic: "Dil Becerileri" };
   if (/(şiir|roman|hikâye|hikaye|edebiyat|söz sanat|fiil|isim|zarf|cümle|paragraf|anlatım)/i.test(value)) return { topic: value.includes("edebiyat") ? "Türk Dili ve Edebiyatı" : "Türkçe", subtopic: "Dil ve Anlam" };
   if (/(atom|molekül|mol |asit|baz|kimyasal|periyodik|element|bileşik|tepkime)/i.test(value)) return { topic: "Kimya", subtopic: "Genel Kimya" };
   if (/(kuvvet|hız|ivme|enerji|elektrik|manyetik|optik|basınç|fizik)/i.test(value)) return { topic: "Fizik", subtopic: "Temel Fizik" };
   if (/(hücre|dna|rna|genetik|fotosentez|solunum|ekosistem|canlı|biyoloji)/i.test(value)) return { topic: "Biyoloji", subtopic: "Canlılar ve Yaşam" };
+  if (/(sosyal bilgiler)/i.test(value)) return { topic: "Sosyal Bilgiler", subtopic: "Genel Sosyal Bilgiler" };
   if (/(tarih|osmanlı|selçuklu|cumhuriyet|inkılap|savaş|antlaşma)/i.test(value)) return { topic: "Tarih", subtopic: "Tarihsel Süreç" };
   if (/(coğrafya|iklim|harita|nüfus|yer şekilleri|akarsu|bölge)/i.test(value)) return { topic: "Coğrafya", subtopic: "İnsan ve Doğa" };
   if (/(felsefe|filozof|bilgi felsefesi|ahlak|etik|varlık felsefesi|mantık)/i.test(value)) return { topic: "Felsefe", subtopic: "Felsefi Düşünme" };

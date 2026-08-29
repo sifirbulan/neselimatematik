@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mergeErrorBooks, mergeLearningSnapshots, newerAssessment } from "./learning-sync-core";
+import { mergeErrorBooks, mergeLearningSnapshots, mergePerformanceRecords, newerAssessment } from "./learning-sync-core";
 
 describe("learning sync core", () => {
   it("daha yeni seviye sonucunu korur", () => {
@@ -24,12 +24,28 @@ describe("learning sync core", () => {
     expect(merged.find(item => item.id === "a")?.mistakeCount).toBe(3);
   });
 
+  it("deneme performans kayıtlarını id ile kayıpsız birleştirir", () => {
+    const merged = mergePerformanceRecords(
+      [
+        { id: "p1", date: "2026-08-20", updatedAt: 300, totalNet: 70 },
+        { id: "p2", date: "2026-08-25", updatedAt: 250, totalNet: 75 },
+      ],
+      [
+        { id: "p1", date: "2026-08-20", updatedAt: 200, totalNet: 68 },
+        { id: "p3", date: "2026-08-28", updatedAt: 400, totalNet: 80 },
+      ],
+    );
+    expect(merged.map(item => item.id)).toEqual(["p3", "p1", "p2"]);
+    expect(merged.find(item => item.id === "p1")?.totalNet).toBe(70);
+  });
+
   it("yerel ve bulut öğrenme anlık görüntülerini kayıpsız birleştirir", () => {
     const merged = mergeLearningSnapshots(
-      { assessment: { createdAt: 10, level: "Gelişiyor" }, errorBook: [{ id: "yerel", lastSeenAt: 20 }] },
-      { assessment: { createdAt: 30, level: "İyi" }, errorBook: [{ id: "bulut", lastSeenAt: 40 }] },
+      { assessment: { createdAt: 10, level: "Gelişiyor" }, errorBook: [{ id: "yerel", lastSeenAt: 20 }], performance: [{ id: "p-yerel", updatedAt: 25 }] },
+      { assessment: { createdAt: 30, level: "İyi" }, errorBook: [{ id: "bulut", lastSeenAt: 40 }], performance: [{ id: "p-bulut", updatedAt: 50 }] },
     );
     expect(merged.assessment?.level).toBe("İyi");
     expect(merged.errorBook.map(item => item.id)).toEqual(["bulut", "yerel"]);
+    expect(merged.performance.map(item => item.id)).toEqual(["p-bulut", "p-yerel"]);
   });
 });

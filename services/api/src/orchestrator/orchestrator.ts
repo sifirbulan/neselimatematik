@@ -7,9 +7,9 @@ import { mathEngineExecutor } from "./math-engine-executor.js";
 import { verifyAnswer } from "./verifier.js";
 import type { AIAnswer, OrchestratorResult, ProviderAttempt, StudentQuestion } from "./types.js";
 
-// Aktif mimari: yalnızca yerel matematik motoru + DeepSeek + Claude.
-// Gemini, OpenAI, Groq, Mistral ve OpenRouter dosyaları geri dönüş için repoda tutulur
-// fakat burada kaydedilmedikleri için çalışma sırasında çağrılmazlar.
+// Aktif mimari: yerel matematik motoru + DeepSeek + Claude.
+// Metin işlemlerinde DeepSeek hızlı ana sağlayıcıdır; Claude yedektir.
+// Fotoğraflı sorularda görsel yeteneği nedeniyle Claude kullanılır.
 registerExecutor(mathEngineExecutor);
 registerExecutor(deepSeekExecutor);
 registerExecutor(claudeExecutor);
@@ -21,8 +21,7 @@ export function isQuestionSetRequest(input:StudentQuestion){
 }
 
 function executionInput(input:StudentQuestion):StudentQuestion{
-  // Ana ekrandaki “3 Soru Hazırla” eski istemi solve olarak gönderse bile
-  // sağlayıcıya test üretimi olarak iletilir. Böylece yerel çözüm motoru boşuna denenmez.
+  // Eski istemlerden gelen 3 soru üretme taleplerini de test üretimi olarak ele al.
   return input.intent==="solve"&&isQuestionSetRequest(input)?{...input,intent:"generate_test"}:input;
 }
 
@@ -33,7 +32,7 @@ async function runProvider(providerId:string,input:StudentQuestion,analysis:Retu
 }
 
 function applyVerification(input:StudentQuestion,answer:AIAnswer):AIAnswer{
-  if(input.intent==="generate_test")return{...answer,verified:false,verificationStatus:"not_applicable"};
+  if(input.intent==="generate_test"||input.intent==="verify")return{...answer,verified:false,verificationStatus:"not_applicable"};
   if(answer.verified&&answer.verificationStatus==="verified")return answer;
   const verification=verifyAnswer(input.question,answer);
   if(verification.status==="verified")return{...answer,verified:true,verificationStatus:"verified",confidence:Math.max(answer.confidence,.96)};
@@ -44,19 +43,22 @@ function applyVerification(input:StudentQuestion,answer:AIAnswer):AIAnswer{
 export function providerOrder(input:StudentQuestion,analysis:ReturnType<typeof analyzeQuestion>,registered:string[]){
   if(input.inputType==="image")return["claude"].filter(id=>registered.includes(id));
   const mathLike=analysis.topic==="Matematik";
-  const questionSet=isQuestionSetRequest(input);
 
-  // Seviye belirleme, 3 soru hazırlama ve Hata Kitapçığı benzer soru üretimi:
-  // matematikte DeepSeek ana/Claude yedek; diğer derslerde Claude ana/DeepSeek yedek.
-  if(questionSet)return(mathLike?["deepseek","claude"]:["claude","deepseek"]).filter(id=>registered.includes(id));
+  // Test, benzer soru, ipucu ve öğrenci çözümü doğrulama doğrudan AI görevidir.
+  // Yerel matematik motorunu bu isteklerde denemeyerek gereksiz gecikmeyi önleriz.
+  if(isQuestionSetRequest(input)||input.intent==="hint"||input.intent==="verify")return["deepseek","claude"].filter(id=>registered.includes(id));
+
+  // Basit matematikte önce ücretsiz ve deterministik yerel motor; desteklemezse DeepSeek.
   if(mathLike&&input.intent==="solve")return["math-engine","deepseek","claude"].filter(id=>registered.includes(id));
-  if(mathLike)return["deepseek","claude"].filter(id=>registered.includes(id));
-  return["claude","deepseek"].filter(id=>registered.includes(id));
+
+  // Diğer bütün metin derslerinde hızlı ve düşük maliyetli DeepSeek ana, Claude yedek.
+  return["deepseek","claude"].filter(id=>registered.includes(id));
 }
 
-export function desiredProviderCount(input:StudentQuestion,analysis:ReturnType<typeof analyzeQuestion>){
-  if(input.inputType==="image"||isQuestionSetRequest(input)||input.intent==="hint")return 1;
-  return analysis.difficulty==="hard"?2:1;
+export function desiredProviderCount(_input:StudentQuestion,_analysis:ReturnType<typeof analyzeQuestion>){
+  // İlk başarılı cevapta dön. Bir sağlayıcı hata verirse sıradaki otomatik yedek olur.
+  // Böylece her soru için iki API'yi gereksiz yere beklemeyiz.
+  return 1;
 }
 
 export async function orchestrateQuestion(input:StudentQuestion):Promise<OrchestratorResult>{
@@ -98,7 +100,7 @@ export async function orchestrateQuestion(input:StudentQuestion):Promise<Orchest
     consensusStatus:consensus.status,
     providersUsed:successful.map(i=>i.providerId),
     agreementScore:consensus.agreementScore,
-    finalAnswerSource:finalAnswer===localMathAnswer?"deterministic-math-engine":consensus.status==="agreement"?"consensus":finalAnswer.verified?"deterministic-verification":successful[0].providerId,
-    message:providerInput.intent==="generate_test"?"Soru seti hazırlandı.":finalAnswer.verified?"Çözüm üretildi ve matematiksel olarak doğrulandı.":consensus.status==="agreement"?"İki çözüm karşılaştırıldı ve aynı sonuca ulaşıldı.":"Çözüm üretildi.",
+    finalAnswerSource:finalAnswer===localMathAnswer?"deterministic-math-engine":finalAnswer.verified?"deterministic-verification":successful[0].providerId,
+    message:providerInput.intent==="generate_test"?"Soru seti hazırlandı.":providerInput.intent==="verify"?"Öğrenci çözümü kontrol edildi.":finalAnswer.verified?"Çözüm üretildi ve matematiksel olarak doğrulandı.":"Çözüm üretildi.",
   };
 }

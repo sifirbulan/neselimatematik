@@ -9,6 +9,8 @@ import type {
   StudentModel,
 } from '../student/student-model';
 import { normalizeStudentModel } from '../student/student-model';
+import { createTeacherPlan } from '../teacher/teacher-engine';
+import type { TeacherPlan } from '../teacher/teacher-model';
 
 export interface NextQuestionInput {
   student: StudentModel;
@@ -27,12 +29,16 @@ export interface RecordResultInput {
   difficulty: DifficultyLevel;
   correct: boolean;
   mistake?: MistakeType;
+  question?: string;
+  studentAnswer?: string | number;
+  expectedAnswer?: string | number;
 }
 
 export interface RecordResultOutput {
   student: StudentModel;
   mastery: number;
   shouldExplainNext: boolean;
+  teacherPlan: TeacherPlan;
 }
 
 export function getNextAdaptiveQuestion(input: NextQuestionInput): NextQuestionResult {
@@ -76,10 +82,31 @@ export function recordAdaptiveResult(input: RecordResultInput): RecordResultOutp
   );
 
   const decision = decideDifficulty(updatedStudent, input.skill);
+  const hasEvidence = input.question !== undefined
+    || input.studentAnswer !== undefined
+    || input.expectedAnswer !== undefined;
+  const teacherPlan = createTeacherPlan({
+    student: updatedStudent,
+    skill: input.skill,
+    correct: input.correct,
+    recommendedDifficulty: decision.difficulty,
+    shouldExplain: decision.shouldExplain,
+    ...(input.mistake ? { mistake: input.mistake } : {}),
+    ...(hasEvidence
+      ? {
+          evidence: {
+            ...(input.question !== undefined ? { question: input.question } : {}),
+            ...(input.studentAnswer !== undefined ? { studentAnswer: input.studentAnswer } : {}),
+            ...(input.expectedAnswer !== undefined ? { expectedAnswer: input.expectedAnswer } : {}),
+          },
+        }
+      : {}),
+  });
 
   return {
     student: updatedStudent,
     mastery: updatedSkill.mastery,
     shouldExplainNext: decision.shouldExplain,
+    teacherPlan,
   };
 }

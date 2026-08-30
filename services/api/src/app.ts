@@ -8,6 +8,7 @@ import {
   type DifficultyLevel,
   type StudentModel,
 } from './student/student-model';
+import { createTeacherPlan } from './teacher/teacher-engine';
 
 export const app = express();
 app.use(cors());
@@ -74,5 +75,57 @@ app.post('/api/v1/adaptive/result', (req, res) => {
     difficulty: body.difficulty as DifficultyLevel,
     correct: body.correct,
     mistake: normalizeMistake(body.mistake),
+    ...(typeof body.question === 'string' ? { question: body.question } : {}),
+    ...(typeof body.studentAnswer === 'string' || typeof body.studentAnswer === 'number'
+      ? { studentAnswer: body.studentAnswer }
+      : {}),
+    ...(typeof body.expectedAnswer === 'string' || typeof body.expectedAnswer === 'number'
+      ? { expectedAnswer: body.expectedAnswer }
+      : {}),
+  }));
+});
+
+app.post('/api/v1/teacher/plan', (req, res) => {
+  const body = req.body ?? {};
+
+  if (!body.student || typeof body.student.studentId !== 'string') {
+    return res.status(400).json({ error: 'Güncel öğrenci modeli gerekli.' });
+  }
+  if (!isSkillId(body.skill)) {
+    return res.status(400).json({ error: 'Geçerli bir kazanım kodu gerekli.' });
+  }
+  if (typeof body.correct !== 'boolean') {
+    return res.status(400).json({ error: 'Sonucun doğru/yanlış bilgisi gerekli.' });
+  }
+  if (![1, 2, 3, 4, 5].includes(body.difficulty)) {
+    return res.status(400).json({ error: 'Zorluk seviyesi 1 ile 5 arasında olmalı.' });
+  }
+
+  const hasEvidence = typeof body.question === 'string'
+    || typeof body.studentAnswer === 'string'
+    || typeof body.studentAnswer === 'number'
+    || typeof body.expectedAnswer === 'string'
+    || typeof body.expectedAnswer === 'number';
+
+  return res.json(createTeacherPlan({
+    student: createStudentModel(body.student),
+    skill: body.skill,
+    correct: body.correct,
+    recommendedDifficulty: body.difficulty as DifficultyLevel,
+    shouldExplain: body.shouldExplain === true,
+    mistake: normalizeMistake(body.mistake),
+    ...(hasEvidence
+      ? {
+          evidence: {
+            ...(typeof body.question === 'string' ? { question: body.question } : {}),
+            ...(typeof body.studentAnswer === 'string' || typeof body.studentAnswer === 'number'
+              ? { studentAnswer: body.studentAnswer }
+              : {}),
+            ...(typeof body.expectedAnswer === 'string' || typeof body.expectedAnswer === 'number'
+              ? { expectedAnswer: body.expectedAnswer }
+              : {}),
+          },
+        }
+      : {}),
   }));
 });

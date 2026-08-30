@@ -1,4 +1,6 @@
 import type { DifficultyLevel, SkillId } from '../student/student-model';
+import type { KnowledgeNodeId } from '../knowledge/knowledge-model';
+import { buildPrerequisiteReview } from '../knowledge/prerequisite-content';
 import type { LearningDiagnosis, TeacherAction, TeachingContent, WorkedExample } from './teacher-model';
 
 const GOALS: Record<SkillId, string> = {
@@ -93,6 +95,7 @@ export function buildTeachingContent(input: {
   skill: SkillId;
   difficulty: DifficultyLevel;
   action: TeacherAction;
+  prerequisite?: KnowledgeNodeId;
 }): TeachingContent {
   const baseExplanation = EXPLANATIONS[input.skill];
   const explanation = input.action === 'celebrate'
@@ -107,6 +110,9 @@ export function buildTeachingContent(input: {
     hints: HINTS[input.skill],
     ...(input.action === 'worked_example' || input.action === 'prerequisite_review'
       ? { workedExample: EXAMPLES[input.skill] }
+      : {}),
+    ...(input.prerequisite && input.action !== 'celebrate'
+      ? { prerequisiteReview: buildPrerequisiteReview(input.prerequisite) }
       : {}),
     checkQuestion: {
       ...CHECKS[input.skill],

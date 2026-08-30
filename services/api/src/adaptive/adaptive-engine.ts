@@ -9,6 +9,7 @@ import type {
   StudentModel,
 } from '../student/student-model';
 import { normalizeStudentModel } from '../student/student-model';
+import { analyzeSolutionSteps } from '../step-analysis/step-analyzer';
 import { createTeacherPlan } from '../teacher/teacher-engine';
 import type { TeacherPlan } from '../teacher/teacher-model';
 
@@ -32,6 +33,7 @@ export interface RecordResultInput {
   question?: string;
   studentAnswer?: string | number;
   expectedAnswer?: string | number;
+  solutionSteps?: string[];
 }
 
 export interface RecordResultOutput {
@@ -60,8 +62,14 @@ export function getNextAdaptiveQuestion(input: NextQuestionInput): NextQuestionR
 
 export function recordAdaptiveResult(input: RecordResultInput): RecordResultOutput {
   const student = normalizeStudentModel(input.student);
+  const stepAnalysis = input.question && input.solutionSteps?.length
+    ? analyzeSolutionSteps({ question: input.question, steps: input.solutionSteps })
+    : undefined;
+  const inferredMistake = input.mistake
+    ?? (!input.correct ? stepAnalysis?.firstError?.mistake : undefined);
+
   const updatedSkill = {
-    ...updateMastery(student.skills[input.skill], input.correct, input.mistake),
+    ...updateMastery(student.skills[input.skill], input.correct, inferredMistake),
     lastDifficulty: input.difficulty,
   };
 
@@ -77,7 +85,7 @@ export function recordAdaptiveResult(input: RecordResultInput): RecordResultOutp
       skill: input.skill,
       correct: input.correct,
       difficulty: input.difficulty,
-      ...(input.mistake ? { mistake: input.mistake } : {}),
+      ...(inferredMistake ? { mistake: inferredMistake } : {}),
     },
   );
 
@@ -91,7 +99,9 @@ export function recordAdaptiveResult(input: RecordResultInput): RecordResultOutp
     correct: input.correct,
     recommendedDifficulty: decision.difficulty,
     shouldExplain: decision.shouldExplain,
-    ...(input.mistake ? { mistake: input.mistake } : {}),
+    ...(inferredMistake ? { mistake: inferredMistake } : {}),
+    ...(input.solutionSteps ? { solutionSteps: input.solutionSteps } : {}),
+    ...(stepAnalysis ? { stepAnalysis } : {}),
     ...(hasEvidence
       ? {
           evidence: {

@@ -8,11 +8,19 @@ import {
   type DifficultyLevel,
   type StudentModel,
 } from './student/student-model';
+import { analyzeSolutionSteps } from './step-analysis/step-analyzer';
 import { createTeacherPlan } from './teacher/teacher-engine';
 
 export const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+
+function readSolutionSteps(value: unknown): string[] | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value) || value.length === 0 || value.length > 30) return undefined;
+  if (value.some((step) => typeof step !== 'string' || !step.trim())) return undefined;
+  return value.map((step) => step.trim());
+}
 
 app.get('/health', (_req, res) => {
   res.json({ service: 'nesevren-api', status: 'ok' });
@@ -29,6 +37,23 @@ app.post('/api/v1/questions/analyze', (req, res) => {
     question,
     next: 'question-analyzer',
   });
+});
+
+app.post('/api/v1/solutions/analyze-steps', (req, res) => {
+  const body = req.body ?? {};
+  if (typeof body.question !== 'string' || !body.question.trim()) {
+    return res.status(400).json({ error: 'Başlangıç denklemi gerekli.' });
+  }
+
+  const solutionSteps = readSolutionSteps(body.steps ?? body.solutionSteps);
+  if (!solutionSteps) {
+    return res.status(400).json({ error: '1 ile 30 arasında, boş olmayan çözüm adımı gerekli.' });
+  }
+
+  return res.json(analyzeSolutionSteps({
+    question: body.question,
+    steps: solutionSteps,
+  }));
 });
 
 app.post('/api/v1/adaptive/next-question', (req, res) => {
@@ -69,6 +94,11 @@ app.post('/api/v1/adaptive/result', (req, res) => {
     return res.status(400).json({ error: 'Zorluk seviyesi 1 ile 5 arasında olmalı.' });
   }
 
+  const solutionSteps = readSolutionSteps(body.solutionSteps);
+  if (body.solutionSteps !== undefined && !solutionSteps) {
+    return res.status(400).json({ error: 'Çözüm adımları 1 ile 30 arasında, boş olmayan metinlerden oluşmalı.' });
+  }
+
   return res.json(recordAdaptiveResult({
     student: createStudentModel(body.student),
     skill: body.skill,
@@ -82,6 +112,7 @@ app.post('/api/v1/adaptive/result', (req, res) => {
     ...(typeof body.expectedAnswer === 'string' || typeof body.expectedAnswer === 'number'
       ? { expectedAnswer: body.expectedAnswer }
       : {}),
+    ...(solutionSteps ? { solutionSteps } : {}),
   }));
 });
 
@@ -101,6 +132,11 @@ app.post('/api/v1/teacher/plan', (req, res) => {
     return res.status(400).json({ error: 'Zorluk seviyesi 1 ile 5 arasında olmalı.' });
   }
 
+  const solutionSteps = readSolutionSteps(body.solutionSteps);
+  if (body.solutionSteps !== undefined && !solutionSteps) {
+    return res.status(400).json({ error: 'Çözüm adımları 1 ile 30 arasında, boş olmayan metinlerden oluşmalı.' });
+  }
+
   const hasEvidence = typeof body.question === 'string'
     || typeof body.studentAnswer === 'string'
     || typeof body.studentAnswer === 'number'
@@ -114,6 +150,7 @@ app.post('/api/v1/teacher/plan', (req, res) => {
     recommendedDifficulty: body.difficulty as DifficultyLevel,
     shouldExplain: body.shouldExplain === true,
     mistake: normalizeMistake(body.mistake),
+    ...(solutionSteps ? { solutionSteps } : {}),
     ...(hasEvidence
       ? {
           evidence: {

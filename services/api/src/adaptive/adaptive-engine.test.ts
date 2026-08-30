@@ -37,20 +37,24 @@ describe('adaptif soru motoru', () => {
     let student = createStudentModel({ studentId: 'ogrenci-3', grade: 7 });
     const results = [true, false, false, false, false];
 
+    let lastResult;
     for (const correct of results) {
-      student = recordAdaptiveResult({
+      lastResult = recordAdaptiveResult({
         student,
         skill,
         difficulty: 3,
         correct,
         mistake: correct ? undefined : 'ters_islem_hatasi',
-      }).student;
+      });
+      student = lastResult.student;
     }
 
     const decision = decideDifficulty(student, skill);
     expect(decision.action).toBe('explain');
     expect(decision.difficulty).toBe(2);
     expect(decision.shouldExplain).toBe(true);
+    expect(lastResult?.teacherPlan.next.shouldExplain).toBe(true);
+    expect(lastResult?.teacherPlan.teaching.workedExample).toBeDefined();
   });
 
   it('doğru cevapta mastery değerini artırır, yanlışta azaltır', () => {
@@ -71,10 +75,14 @@ describe('adaptif soru motoru', () => {
       difficulty: 2,
       correct: false,
       mistake: 'isaret_hatasi',
+      question: 'x + 2 = 7',
+      studentAnswer: '9',
+      expectedAnswer: '5',
     });
 
     expect(afterCorrect.mastery).toBeGreaterThan(0.5);
     expect(afterWrong.mastery).toBeLessThan(afterCorrect.mastery);
     expect(afterWrong.student.skills[skill].lastMistake).toBe('isaret_hatasi');
+    expect(afterWrong.teacherPlan.diagnosis.evidence).toContain('Öğrenci cevabı: 9');
   });
 });

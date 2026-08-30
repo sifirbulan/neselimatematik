@@ -3,6 +3,7 @@ import express from 'express';
 import { getNextAdaptiveQuestion, recordAdaptiveResult } from './adaptive/adaptive-engine';
 import { getKnowledgeGraph, getKnowledgeGraphView } from './knowledge/knowledge-graph';
 import { analyzePrerequisiteNeed } from './knowledge/prerequisite-diagnosis';
+import { learningMemoryService } from './memory/memory-service';
 import { normalizeMistake } from './student/mistake-analysis';
 import {
   createStudentModel,
@@ -26,6 +27,38 @@ function readSolutionSteps(value: unknown): string[] | undefined {
 
 app.get('/health', (_req, res) => {
   res.json({ service: 'nesevren-api', status: 'ok' });
+});
+
+app.get('/api/v1/memory/:studentId', async (req, res) => {
+  const studentId = req.params.studentId.trim();
+  if (!studentId) return res.status(400).json({ error: 'Öğrenci kimliği gerekli.' });
+  const profile = await learningMemoryService.getProfile(studentId);
+  if (!profile) return res.status(404).json({ error: 'Bu öğrenci için uzun süreli öğrenme hafızası bulunamadı.' });
+  const summary = await learningMemoryService.getSummary(studentId);
+  return res.json({ profile, summary });
+});
+
+app.get('/api/v1/memory/:studentId/review-plan', async (req, res) => {
+  const studentId = req.params.studentId.trim();
+  if (!studentId) return res.status(400).json({ error: 'Öğrenci kimliği gerekli.' });
+  const summary = await learningMemoryService.getSummary(studentId);
+  if (!summary) return res.status(404).json({ error: 'Bu öğrenci için uzun süreli öğrenme hafızası bulunamadı.' });
+  return res.json({
+    studentId,
+    nextFocus: summary.nextFocus,
+    reviewQueue: summary.reviewQueue,
+    strengths: summary.strengths,
+    needsReview: summary.needsReview,
+    foundationRisks: summary.foundationRisks,
+  });
+});
+
+app.delete('/api/v1/memory/:studentId', async (req, res) => {
+  const studentId = req.params.studentId.trim();
+  if (!studentId) return res.status(400).json({ error: 'Öğrenci kimliği gerekli.' });
+  const deleted = await learningMemoryService.deleteProfile(studentId);
+  if (!deleted) return res.status(404).json({ error: 'Silinecek öğrenme hafızası bulunamadı.' });
+  return res.json({ status: 'deleted', studentId });
 });
 
 app.post('/api/v1/questions/analyze', (req, res) => {
@@ -101,7 +134,7 @@ app.post('/api/v1/solutions/analyze-steps', (req, res) => {
   }));
 });
 
-app.post('/api/v1/adaptive/next-question', (req, res) => {
+app.post('/api/v1/adaptive/next-question', async (req, res) => {
   const body = req.body ?? {};
   const studentId = body.student?.studentId ?? body.studentId;
 
@@ -113,21 +146,43 @@ app.post('/api/v1/adaptive/next-question', (req, res) => {
     return res.status(400).json({ error: 'Geçersiz kazanım kodu.' });
   }
 
-  const student: StudentModel = body.student
-    ? createStudentModel(body.student)
-    : createStudentModel({ studentId, grade: body.grade });
+  let student: StudentModel;
+  let memoryContext: Awaited<ReturnType<typeof learningMemoryService.getProfile>>;
+  if (body.student) {
+    student = createStudentModel(body.student);
+    memoryContext = await learningMemoryService.getProfile(studentId);
+  } else {
+    const loaded = await learningMemoryService.getStudent(studentId, body.grade);
+    student = loaded.student;
+    memoryContext = loaded.memory;
+  }
 
-  return res.json(getNextAdaptiveQuestion({
+  const result = getNextAdaptiveQuestion({
     student,
     ...(body.requestedSkill ? { requestedSkill: body.requestedSkill } : {}),
-  }));
+  });
+  const memorySummary = memoryContext ? await learningMemoryService.getSummary(studentId) : undefined;
+
+  return res.json({
+    ...result,
+    ...(memoryContext
+      ? {
+          memoryContext: {
+            revision: memoryContext.revision,
+            nextFocus: memorySummary?.nextFocus,
+            needsReview: memorySummary?.needsReview ?? [],
+          },
+        }
+      : {}),
+  });
 });
 
-app.post('/api/v1/adaptive/result', (req, res) => {
+app.post('/api/v1/adaptive/result', async (req, res) => {
   const body = req.body ?? {};
+  const studentId = body.student?.studentId ?? body.studentId;
 
-  if (!body.student || typeof body.student.studentId !== 'string') {
-    return res.status(400).json({ error: 'Güncel öğrenci modeli gerekli.' });
+  if (typeof studentId !== 'string' || !studentId.trim()) {
+    return res.status(400).json({ error: 'Öğrenci kimliği veya güncel öğrenci modeli gerekli.' });
   }
   if (!isSkillId(body.skill)) {
     return res.status(400).json({ error: 'Geçerli bir kazanım kodu gerekli.' });
@@ -144,8 +199,11 @@ app.post('/api/v1/adaptive/result', (req, res) => {
     return res.status(400).json({ error: 'Çözüm adımları 1 ile 30 arasında, boş olmayan metinlerden oluşmalı.' });
   }
 
-  return res.json(recordAdaptiveResult({
-    student: createStudentModel(body.student),
+  const student = body.student
+    ? createStudentModel(body.student)
+    : (await learningMemoryService.getStudent(studentId, body.grade)).student;
+  const result = recordAdaptiveResult({
+    student,
     skill: body.skill,
     difficulty: body.difficulty as DifficultyLevel,
     correct: body.correct,
@@ -158,7 +216,25 @@ app.post('/api/v1/adaptive/result', (req, res) => {
       ? { expectedAnswer: body.expectedAnswer }
       : {}),
     ...(solutionSteps ? { solutionSteps } : {}),
-  }));
+  });
+  const recordedMistake = result.student.skills[body.skill].lastMistake;
+  const memory = await learningMemoryService.persistAttempt({
+    seedStudent: student,
+    skill: body.skill,
+    correct: body.correct,
+    difficulty: body.difficulty as DifficultyLevel,
+    masteryAfter: result.mastery,
+    ...(recordedMistake ? { mistake: recordedMistake } : {}),
+    prerequisiteAnalysis: result.teacherPlan.prerequisiteAnalysis,
+  });
+
+  return res.json({
+    ...result,
+    memory: {
+      revision: memory.profile.revision,
+      summary: memory.summary,
+    },
+  });
 });
 
 app.post('/api/v1/teacher/plan', (req, res) => {

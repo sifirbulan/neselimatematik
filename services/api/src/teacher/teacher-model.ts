@@ -1,5 +1,7 @@
 import type { DifficultyLevel, MistakeType, SkillId } from '../student/student-model';
 import type { StepAnalysisResult } from '../step-analysis/step-model';
+import type { KnowledgeNodeId, PrerequisiteAnalysis } from '../knowledge/knowledge-model';
+import type { PrerequisiteReviewContent } from '../knowledge/prerequisite-content';
 
 export type TeacherAction =
   | 'celebrate'
@@ -43,12 +45,14 @@ export interface TeachingContent {
   explanation: string[];
   hints: string[];
   workedExample?: WorkedExample;
+  prerequisiteReview?: PrerequisiteReviewContent;
   checkQuestion: CheckQuestion;
 }
 
 export interface TeacherPlan {
   action: TeacherAction;
   diagnosis: LearningDiagnosis;
+  prerequisiteAnalysis: PrerequisiteAnalysis;
   feedback: {
     headline: string;
     message: string;
@@ -58,6 +62,7 @@ export interface TeacherPlan {
   next: {
     skill: SkillId;
     difficulty: DifficultyLevel;
+    prerequisite?: KnowledgeNodeId;
     retryRecommended: boolean;
     shouldExplain: boolean;
   };

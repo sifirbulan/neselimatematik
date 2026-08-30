@@ -1,6 +1,8 @@
 import cors from 'cors';
 import express from 'express';
 import { getNextAdaptiveQuestion, recordAdaptiveResult } from './adaptive/adaptive-engine';
+import { getKnowledgeGraph, getKnowledgeGraphView } from './knowledge/knowledge-graph';
+import { analyzePrerequisiteNeed } from './knowledge/prerequisite-diagnosis';
 import { normalizeMistake } from './student/mistake-analysis';
 import {
   createStudentModel,
@@ -37,6 +39,49 @@ app.post('/api/v1/questions/analyze', (req, res) => {
     question,
     next: 'question-analyzer',
   });
+});
+
+app.get('/api/v1/knowledge/graph', (_req, res) => {
+  return res.json(getKnowledgeGraph());
+});
+
+app.get('/api/v1/knowledge/prerequisites/:skill', (req, res) => {
+  const skill = req.params.skill;
+  if (!isSkillId(skill)) {
+    return res.status(400).json({ error: 'Geçerli bir kazanım kodu gerekli.' });
+  }
+  return res.json(getKnowledgeGraphView(skill));
+});
+
+app.post('/api/v1/knowledge/diagnose', (req, res) => {
+  const body = req.body ?? {};
+  if (!body.student || typeof body.student.studentId !== 'string') {
+    return res.status(400).json({ error: 'Güncel öğrenci modeli gerekli.' });
+  }
+  if (!isSkillId(body.skill)) {
+    return res.status(400).json({ error: 'Geçerli bir kazanım kodu gerekli.' });
+  }
+  if (typeof body.correct !== 'boolean') {
+    return res.status(400).json({ error: 'Sonucun doğru/yanlış bilgisi gerekli.' });
+  }
+
+  const solutionSteps = readSolutionSteps(body.solutionSteps);
+  if (body.solutionSteps !== undefined && !solutionSteps) {
+    return res.status(400).json({ error: 'Çözüm adımları 1 ile 30 arasında, boş olmayan metinlerden oluşmalı.' });
+  }
+  const stepAnalysis = typeof body.question === 'string' && solutionSteps
+    ? analyzeSolutionSteps({ question: body.question, steps: solutionSteps })
+    : undefined;
+  const mistake = normalizeMistake(body.mistake)
+    ?? (!body.correct ? stepAnalysis?.firstError?.mistake : undefined);
+
+  return res.json(analyzePrerequisiteNeed({
+    student: createStudentModel(body.student),
+    skill: body.skill,
+    correct: body.correct,
+    ...(mistake ? { mistake } : {}),
+    ...(stepAnalysis ? { stepAnalysis } : {}),
+  }));
 });
 
 app.post('/api/v1/solutions/analyze-steps', (req, res) => {

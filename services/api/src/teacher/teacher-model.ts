@@ -1,4 +1,5 @@
 import type { DifficultyLevel, MistakeType, SkillId } from '../student/student-model';
+import type { StepAnalysisResult } from '../step-analysis/step-model';
 
 export type TeacherAction =
   | 'celebrate'
@@ -53,6 +54,7 @@ export interface TeacherPlan {
     message: string;
   };
   teaching: TeachingContent;
+  stepAnalysis?: StepAnalysisResult;
   next: {
     skill: SkillId;
     difficulty: DifficultyLevel;

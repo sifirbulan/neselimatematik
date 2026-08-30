@@ -1,4 +1,6 @@
 import type { DifficultyLevel, MistakeType, SkillId, StudentModel } from '../student/student-model';
+import { analyzeSolutionSteps } from '../step-analysis/step-analyzer';
+import type { StepAnalysisResult } from '../step-analysis/step-model';
 import { diagnoseLearningNeed } from './error-diagnosis';
 import { buildTeachingContent, chooseTeacherAction } from './lesson-builder';
 import type { TeacherEvidence, TeacherPlan } from './teacher-model';
@@ -11,13 +13,22 @@ export interface CreateTeacherPlanInput {
   shouldExplain: boolean;
   mistake?: MistakeType;
   evidence?: TeacherEvidence;
+  solutionSteps?: string[];
+  stepAnalysis?: StepAnalysisResult;
 }
 
-function feedbackFor(action: TeacherPlan['action'], correct: boolean): TeacherPlan['feedback'] {
+function feedbackFor(action: TeacherPlan['action'], correct: boolean, stepAnalysis?: StepAnalysisResult): TeacherPlan['feedback'] {
   if (correct) {
     return {
       headline: 'Doğru cevap',
       message: 'Kuralı doğru uyguladın. Şimdi aynı fikri biraz farklı bir soruda deneyelim.',
+    };
+  }
+
+  if (stepAnalysis?.firstError) {
+    return {
+      headline: `${stepAnalysis.firstError.stepNumber}. adımı kontrol edelim`,
+      message: stepAnalysis.firstError.reason,
     };
   }
 
@@ -51,11 +62,19 @@ function feedbackFor(action: TeacherPlan['action'], correct: boolean): TeacherPl
 }
 
 export function createTeacherPlan(input: CreateTeacherPlanInput): TeacherPlan {
+  const stepAnalysis = input.stepAnalysis ?? (
+    input.evidence?.question && input.solutionSteps?.length
+      ? analyzeSolutionSteps({ question: input.evidence.question, steps: input.solutionSteps })
+      : undefined
+  );
+  const inferredMistake = input.mistake
+    ?? (!input.correct ? stepAnalysis?.firstError?.mistake : undefined);
+
   const diagnosis = diagnoseLearningNeed({
     student: input.student,
     skill: input.skill,
     correct: input.correct,
-    ...(input.mistake ? { mistake: input.mistake } : {}),
+    ...(inferredMistake ? { mistake: inferredMistake } : {}),
     ...(input.evidence ? { evidence: input.evidence } : {}),
   });
   const mastery = input.student.skills[input.skill].mastery;
@@ -74,8 +93,9 @@ export function createTeacherPlan(input: CreateTeacherPlanInput): TeacherPlan {
   return {
     action,
     diagnosis,
-    feedback: feedbackFor(action, input.correct),
+    feedback: feedbackFor(action, input.correct, stepAnalysis),
     teaching,
+    ...(stepAnalysis ? { stepAnalysis } : {}),
     next: {
       skill: input.skill,
       difficulty: input.recommendedDifficulty,

@@ -217,10 +217,10 @@ app.post('/api/v1/adaptive/result', async (req, res) => {
       : {}),
     ...(solutionSteps ? { solutionSteps } : {}),
   });
-  const recordedMistake = result.student.skills[body.skill].lastMistake;
+  const recordedMistake = result.student.skills[result.teacherPlan.next.skill].lastMistake;
   const memory = await learningMemoryService.persistAttempt({
     seedStudent: student,
-    skill: body.skill,
+    skill: result.teacherPlan.next.skill,
     correct: body.correct,
     difficulty: body.difficulty as DifficultyLevel,
     masteryAfter: result.mastery,

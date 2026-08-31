@@ -21,6 +21,5 @@
 .composerVoiceButton.voiceListening span{animation:voicePulse 1s infinite}
 .composerVoiceButton.voicePaused{background:#fff7ed;color:#9a3412}
 @keyframes voicePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.18);opacity:.7}}
-.bottomNav button:nth-child(3){display:none!important}
 .bottomNav{grid-template-columns:repeat(3,1fr)!important}
 @media(max-width:760px){.appHero>.questionBox{margin-top:8px}.composerActions{gap:7px!important}.composerInlineTools{gap:6px}.composerToolButton{padding:10px}.composerToolButton b{font-size:11px}.solveButton{margin-left:0}}

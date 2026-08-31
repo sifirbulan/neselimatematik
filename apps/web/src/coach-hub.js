@@ -23,22 +23,6 @@ function errorBook(){const value=readJson("nesevren-error-book",[]);return Array
 function learningHistory(){const value=readJson(HISTORY_KEY,[]);return Array.isArray(value)?value:[]}
 function isVisible(node){return node&&node.getClientRects().length>0}
 
-function ensureCoachNavButton(){
-  const nav=document.querySelector(".bottomNav");
-  if(!nav)return;
-  let button=nav.querySelector("[data-nesevren-coach]");
-  if(!button){
-    button=document.createElement("button");
-    button.type="button";
-    button.setAttribute("data-nesevren-coach","true");
-    button.setAttribute("aria-label","Koç Hizmeti Al");
-    button.innerHTML='◎<small>Koç Hizmeti Al</small>';
-    nav.appendChild(button);
-  }
-  const count=Math.max(1,nav.children.length);
-  nav.style.gridTemplateColumns=`repeat(${count},1fr)`;
-}
-
 function escapeStatic(value){return String(value??"").replace(/[&<>\"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]))}
 
 function contextSnapshot(){
@@ -212,6 +196,5 @@ function closeCoach(){const root=document.getElementById("coachBackdrop");if(roo
 
 document.addEventListener("click",event=>{const target=event.target instanceof Element?event.target:null;const button=target?.closest("[data-nesevren-coach]");if(!button)return;event.preventDefault();event.stopPropagation();if(typeof event.stopImmediatePropagation==="function")event.stopImmediatePropagation();openCoach()},true);
 
-const observer=new MutationObserver(()=>ensureCoachNavButton());observer.observe(document.documentElement,{childList:true,subtree:true});ensureCoachNavButton();
 window.addEventListener("storage",refreshOpenCoach);
 window.addEventListener("nesevren-learning-data-synced",refreshOpenCoach);

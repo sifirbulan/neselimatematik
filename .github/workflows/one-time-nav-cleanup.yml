@@ -1,0 +1,73 @@
+name: One-time nav cleanup
+
+on:
+  push:
+    branches: [fix/direct-three-nav]
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply direct three-button navigation cleanup
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new):
+              p = Path(path)
+              text = p.read_text()
+              if old not in text:
+                  raise SystemExit(f"Beklenen kod bulunamadı: {path}")
+              p.write_text(text.replace(old, new, 1))
+
+          old_nav = '<nav className="bottomNav"><button className="active">⌂<small>Ana Sayfa</small></button><button onClick={choosePhoto}>▣<small>Soru Sor</small></button><button onClick={()=>setShowSubject(true)}>▤<small>Dersler</small></button><button onClick={()=>window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"})}>○<small>Geçmiş</small></button></nav>'
+          new_nav = '<nav className="bottomNav"><button className="active">⌂<small>Ana Sayfa</small></button><button type="button" data-nesevren-coach="true" aria-label="Koç Hizmeti Al">◎<small>Koç Hizmeti Al</small></button><button onClick={()=>window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"})}>○<small>Geçmiş</small></button></nav>'
+          replace_once('apps/web/src/main.tsx', old_nav, new_nav)
+
+          replace_once('apps/web/src/styles.css', 'grid-template-columns:repeat(4,1fr);padding:7px', 'grid-template-columns:repeat(3,1fr);padding:7px')
+
+          coach_path = Path('apps/web/src/coach-hub.js')
+          coach = coach_path.read_text()
+          start = coach.find('function ensureCoachNavButton(){')
+          end = coach.find('function escapeStatic', start)
+          if start == -1 or end == -1:
+              raise SystemExit('Koç menü oluşturma kodu bulunamadı.')
+          coach = coach[:start] + coach[end:]
+          observer = 'const observer=new MutationObserver(()=>ensureCoachNavButton());observer.observe(document.documentElement,{childList:true,subtree:true});ensureCoachNavButton();\n'
+          if observer not in coach:
+              raise SystemExit('Koç MutationObserver kodu bulunamadı.')
+          coach = coach.replace(observer, '', 1)
+          coach_path.write_text(coach)
+
+          index_path = Path('apps/web/index.html')
+          index = index_path.read_text()
+          index = index.replace('    <link rel="stylesheet" href="/src/bottom-nav-three.css" />\n', '')
+          index = index.replace('    <script type="module" src="/src/bottom-nav-three.js"></script>\n', '')
+          index_path.write_text(index)
+
+          for file_name in ('apps/web/src/bottom-nav-three.css', 'apps/web/src/bottom-nav-three.js'):
+              p = Path(file_name)
+              if p.exists():
+                  p.unlink()
+          PY
+
+      - name: Remove one-time workflow
+        run: rm .github/workflows/one-time-nav-cleanup.yml
+
+      - name: Commit cleanup
+        run: |
+          git config user.name "nesevren-bot"
+          git config user.email "noreply@github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "fix: alt menüyü doğrudan üç düğmeye indir"
+          git push origin HEAD:fix/direct-three-nav

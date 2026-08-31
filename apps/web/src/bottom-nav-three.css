@@ -1,0 +1,8 @@
+@media (max-width:760px){
+  .bottomNav{grid-template-columns:repeat(3,1fr)!important}
+  .bottomNav>button:nth-child(3){display:none!important}
+  .bottomNav>button:nth-child(2){font-size:0}
+  .bottomNav>button:nth-child(2)>small{display:none}
+  .bottomNav>button:nth-child(2)::before{content:'◎';font-size:20px;line-height:1}
+  .bottomNav>button:nth-child(2)::after{content:'Koç Hizmeti Al';font-size:9px;font-weight:750;line-height:1.15}
+}

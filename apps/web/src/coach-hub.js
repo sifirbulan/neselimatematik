@@ -15,23 +15,28 @@ const subjects=["Matematik","Fen Bilimleri","Fizik","Kimya","Biyoloji","Türkçe
 function readJson(key,fallback){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback}catch{return fallback}}
 function writeJson(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch{}}
 function levelLabel(value){return /^\d+$/.test(value)?`${value}. sınıf`:value}
-function coachProfile(){return readJson(PROFILE_KEY,{name:"",level:"8",goal:"Okul başarısı",weeklyHours:6,weakSubjects:"Matematik",note:""})}
-function coachTasks(){return readJson(TASKS_KEY,[])}
-function coachCheckins(){return readJson(CHECKINS_KEY,[])}
-function latestAssessment(){return readJson("nesevren-assessment",null)}
-function errorBook(){return readJson("nesevren-error-book",[])}
+function coachProfile(){const value=readJson(PROFILE_KEY,null);return value&&typeof value==="object"&&!Array.isArray(value)?value:{name:"",level:"8",goal:"Okul başarısı",weeklyHours:6,weakSubjects:"Matematik",note:""}}
+function coachTasks(){const value=readJson(TASKS_KEY,[]);return Array.isArray(value)?value:[]}
+function coachCheckins(){const value=readJson(CHECKINS_KEY,[]);return Array.isArray(value)?value:[]}
+function latestAssessment(){const value=readJson("nesevren-assessment",null);return value&&typeof value==="object"&&!Array.isArray(value)?value:null}
+function errorBook(){const value=readJson("nesevren-error-book",[]);return Array.isArray(value)?value:[]}
 function learningHistory(){const value=readJson(HISTORY_KEY,[]);return Array.isArray(value)?value:[]}
 function isVisible(node){return node&&node.getClientRects().length>0}
 
-function rewriteBottomNav(){
+function ensureCoachNavButton(){
   const nav=document.querySelector(".bottomNav");
-  const button=nav?.querySelector("button:nth-child(2)");
-  if(!button)return;
-  const small=button.querySelector("small");
-  if(small&&small.textContent!=="Koç Hizmeti Al")small.textContent="Koç Hizmeti Al";
-  const first=button.firstChild;
-  if(first&&first.nodeType===Node.TEXT_NODE&&first.textContent?.trim()!=="◎")first.textContent="◎";
-  button.setAttribute("aria-label","Koç Hizmeti Al");
+  if(!nav)return;
+  let button=nav.querySelector("[data-nesevren-coach]");
+  if(!button){
+    button=document.createElement("button");
+    button.type="button";
+    button.setAttribute("data-nesevren-coach","true");
+    button.setAttribute("aria-label","Koç Hizmeti Al");
+    button.innerHTML='◎<small>Koç Hizmeti Al</small>';
+    nav.appendChild(button);
+  }
+  const count=Math.max(1,nav.children.length);
+  nav.style.gridTemplateColumns=`repeat(${count},1fr)`;
 }
 
 function escapeStatic(value){return String(value??"").replace(/[&<>\"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]))}
@@ -176,12 +181,37 @@ function wireHub(root){
   root.querySelector("#coachMentorRequest")?.addEventListener("click",()=>{writeJson(MENTOR_KEY,{requestedAt:Date.now(),profile:coachProfile(),snapshot:contextSnapshot()});showToast(root,"Mentor talebin ve eğitim özetin kaydedildi. Canlı eşleştirme altyapısı açıldığında kullanılacak.")});
 }
 
-function refreshOpenCoach(){const root=document.getElementById("coachBackdrop");if(root&&isVisible(root)){renderStats(root);renderTasks(root);renderIntelligence(root)}}
-function openCoach(){const root=createHub();fillProfile(root);renderTasks(root);renderStats(root);renderIntelligence(root);const saved=readJson(PLAN_KEY,null);const area=root.querySelector("#coachAiArea");area.textContent="";if(saved?.answer)renderAiAnswer(root,saved.answer,saved.kind);root.hidden=false;document.body.style.overflow="hidden";setTimeout(()=>root.querySelector(".coachClose")?.focus(),20)}
+function refreshOpenCoach(){const root=document.getElementById("coachBackdrop");if(root&&isVisible(root)){try{renderStats(root);renderTasks(root);renderIntelligence(root)}catch(error){console.error("Koç verileri yenilenemedi",error)}}}
+function openCoach(){
+  const root=createHub();
+  root.hidden=false;
+  document.body.style.overflow="hidden";
+  try{
+    fillProfile(root);
+    renderTasks(root);
+    renderStats(root);
+    renderIntelligence(root);
+    const saved=readJson(PLAN_KEY,null);
+    const area=root.querySelector("#coachAiArea");
+    area.textContent="";
+    if(saved?.answer)renderAiAnswer(root,saved.answer,saved.kind);
+  }catch(error){
+    console.error("Koç merkezi açılırken veri hatası oluştu",error);
+    const holder=root.querySelector("#coachMessage");
+    if(holder){
+      holder.textContent="";
+      const item=document.createElement("div");
+      item.className="coachError";
+      item.textContent="Koç merkezi açıldı ancak eski kayıtların bir kısmı okunamadı. Profilini yeniden kaydederek devam edebilirsin.";
+      holder.appendChild(item);
+    }
+  }
+  setTimeout(()=>root.querySelector(".coachClose")?.focus(),20);
+}
 function closeCoach(){const root=document.getElementById("coachBackdrop");if(root)root.hidden=true;document.body.style.overflow=""}
 
-document.addEventListener("click",event=>{const target=event.target instanceof Element?event.target:null;const button=target?.closest(".bottomNav button:nth-child(2)");if(!button)return;event.preventDefault();event.stopPropagation();if(typeof event.stopImmediatePropagation==="function")event.stopImmediatePropagation();openCoach()},true);
+document.addEventListener("click",event=>{const target=event.target instanceof Element?event.target:null;const button=target?.closest("[data-nesevren-coach]");if(!button)return;event.preventDefault();event.stopPropagation();if(typeof event.stopImmediatePropagation==="function")event.stopImmediatePropagation();openCoach()},true);
 
-const observer=new MutationObserver(()=>rewriteBottomNav());observer.observe(document.documentElement,{childList:true,subtree:true});rewriteBottomNav();
+const observer=new MutationObserver(()=>ensureCoachNavButton());observer.observe(document.documentElement,{childList:true,subtree:true});ensureCoachNavButton();
 window.addEventListener("storage",refreshOpenCoach);
 window.addEventListener("nesevren-learning-data-synced",refreshOpenCoach);

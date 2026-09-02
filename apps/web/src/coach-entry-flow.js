@@ -4,12 +4,23 @@ const AUTH_SESSION_KEY='nesevren-auth-session-v1';
 const PROFILE_KEY='nesevren-user-profile-v1';
 const LOGIN_INTENT_KEY='nesevren-coach-login-pending-v1';
 const REQUEST_KEY='nesevren-live-coach-requests-v1';
+const PROFILE_VERSION=2;
+let waitingForProfile=false;
 
 function readJson(key,fallback=null){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback}catch{return fallback}}
 function writeJson(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch{}}
-function hasSession(){const session=readJson(AUTH_SESSION_KEY,null);return Boolean(session?.access_token)}
+function hasSession(){const session=readJson(AUTH_SESSION_KEY,null);if(!session?.access_token)return false;const expiresAt=Number(session.expires_at||0);return !expiresAt||expiresAt>Date.now()+5000}
 function escapeHtml(value=''){return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
-function userId(){const session=readJson(AUTH_SESSION_KEY,null);return session?.user?.id||session?.access_token?.slice(-12)||'local'}
+function tokenSubject(token=''){
+  try{
+    const part=String(token).split('.')[1];if(!part)return'';
+    const normalized=part.replace(/-/g,'+').replace(/_/g,'/');const padded=normalized+'='.repeat((4-normalized.length%4)%4);
+    const bytes=Uint8Array.from(atob(padded),char=>char.charCodeAt(0));const payload=JSON.parse(new TextDecoder().decode(bytes));
+    return typeof payload?.sub==='string'?payload.sub:'';
+  }catch{return''}
+}
+function profileComplete(){const profile=readJson(PROFILE_KEY,null);if(!profile||profile.profileVersion!==PROFILE_VERSION)return false;if(profile.role==='student')return Boolean(profile.grade);if(profile.role==='teacher')return Boolean(profile.educationLevel&&profile.branch);return false}
+function userId(){const profile=readJson(PROFILE_KEY,null);if(typeof profile?.userId==='string'&&profile.userId)return profile.userId;const session=readJson(AUTH_SESSION_KEY,null);return session?.user?.id||tokenSubject(session?.access_token)||'local'}
 function freeKey(){return `nesevren-live-coach-free-used-v1:${userId()}`}
 function freeUsed(){try{return localStorage.getItem(freeKey())==='1'}catch{return false}}
 function closeCoach(){document.getElementById('coachEntryBackdrop')?.remove();document.body.style.overflow=''}
@@ -17,7 +28,7 @@ function setResult(root,html,kind=''){const box=root.querySelector('#coachEntryR
 function requireProblem(root){const input=root.querySelector('#coachProblem');const value=input.value.trim();if(!value){setResult(root,'<strong>Önce seni zorlayan durumu kısaca yaz.</strong>','error');input.focus();return null}return value}
 
 function openLoginForCoach(){
-  try{localStorage.setItem(LOGIN_INTENT_KEY,'1');if(!localStorage.getItem(PROFILE_KEY))localStorage.setItem(PROFILE_KEY,JSON.stringify({deferred:true}))}catch{}
+  try{localStorage.setItem(LOGIN_INTENT_KEY,'1')}catch{}
   const entry=document.querySelector('.appTopbar .authEntry,.appTopbar .aiStatus');
   if(entry){entry.click();return}
   const fallback=[...document.querySelectorAll('button')].find(btn=>(btn.textContent||'').includes('Giriş Yap'));
@@ -51,7 +62,7 @@ async function continueWithAi(root){
 
 function saveLiveRequest(problem){
   const items=readJson(REQUEST_KEY,[]);const list=Array.isArray(items)?items:[];
-  list.unshift({id:`${Date.now()}`,problem,createdAt:Date.now(),free:true,status:'prepared'});
+  list.unshift({id:`${Date.now()}`,userId:userId(),problem,createdAt:Date.now(),free:true,status:'prepared'});
   writeJson(REQUEST_KEY,list.slice(0,20));
   try{localStorage.setItem(freeKey(),'1')}catch{}
 }
@@ -81,6 +92,23 @@ function openCoach(){
   setTimeout(()=>wrap.querySelector('#coachProblem')?.focus(),30);
 }
 
+function resumeCoachAfterLogin(){
+  let pending=false;try{pending=localStorage.getItem(LOGIN_INTENT_KEY)==='1'}catch{}
+  if(!pending||!hasSession())return;
+  if(profileComplete()){
+    try{localStorage.removeItem(LOGIN_INTENT_KEY)}catch{}
+    waitingForProfile=false;setTimeout(openCoach,160);return;
+  }
+  if(waitingForProfile)return;
+  waitingForProfile=true;
+  document.addEventListener('nesevren:profile-updated',()=>{
+    waitingForProfile=false;
+    if(!profileComplete())return;
+    try{localStorage.removeItem(LOGIN_INTENT_KEY)}catch{}
+    setTimeout(openCoach,80);
+  },{once:true});
+}
+
 document.addEventListener('click',event=>{const target=event.target instanceof Element?event.target:null;const button=target?.closest('[data-nesevren-coach]');if(!button)return;event.preventDefault();event.stopPropagation();if(typeof event.stopImmediatePropagation==='function')event.stopImmediatePropagation();openCoach()},true);
-window.addEventListener('pageshow',()=>{if(hasSession()&&localStorage.getItem(LOGIN_INTENT_KEY)==='1'){localStorage.removeItem(LOGIN_INTENT_KEY);setTimeout(openCoach,120)}});
+window.addEventListener('pageshow',resumeCoachAfterLogin);
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeCoach()});

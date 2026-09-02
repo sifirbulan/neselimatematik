@@ -1,16 +1,27 @@
 const configuredApiUrl=(import.meta.env.VITE_API_URL??'').trim().replace(/\/+$/,'');
 const API_URL=!configuredApiUrl||configuredApiUrl==='https://nesevren-api.onrender.com'?'https://nesevren-api-v2.onrender.com':configuredApiUrl;
+const PROFILE_KEY='nesevren-user-profile-v1';
 
 let activeSession=null;
 
 function escapeHtml(value=''){return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
 function readJson(key,fallback=null){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback}catch{return fallback}}
 function optionCountForGrade(grade){if(grade==='LGS')return 4;const n=Number(grade);if(Number.isFinite(n)){if(n<=4)return 3;if(n<=8)return 4}return 5}
-function currentGrade(){const assessment=readJson('nesevren-assessment');const grade=typeof assessment?.grade==='string'?assessment.grade.trim():'';return grade||null}
+function currentGrade(){
+  const assessment=readJson('nesevren-assessment');const assessmentGrade=typeof assessment?.grade==='string'?assessment.grade.trim():'';
+  if(assessmentGrade)return assessmentGrade;
+  const profile=readJson(PROFILE_KEY,null);const profileGrade=profile?.role==='student'&&typeof profile?.grade==='string'?profile.grade.trim():'';
+  return profileGrade||null;
+}
 function levelLabel(grade){return /^\d+$/.test(String(grade||''))?`${grade}. sınıf`:String(grade||'Standart seviye')}
 function currentQuestion(){return document.querySelector('.modernQuestionBox textarea')?.value?.trim()||''}
 function currentImage(){const src=document.querySelector('.photoPreview img')?.getAttribute('src')||'';return src.startsWith('data:image/')?src:''}
-function currentSubject(){const selected=document.querySelector('#subject')?.value?.trim();return selected&&selected!=='Otomatik'?selected:'Otomatik'}
+function currentSubject(){
+  const selected=document.querySelector('#subject,.subjectInline select')?.value?.trim();
+  if(selected&&selected!=='Otomatik')return selected;
+  const label=document.querySelector('.composerTitle span')?.textContent?.trim()||'';
+  return label&&label!=='Dersi AI algılar'&&label!=='Otomatik'?label:'Otomatik';
+}
 function resultAnchor(){return document.querySelector('.smartActions')}
 function removeOld(){document.querySelector('.practiceFixSet')?.remove();document.querySelector('.practiceFixMessage')?.remove()}
 function showMessage(text,kind='error'){activeSession=null;removeOld();const anchor=resultAnchor();if(!anchor)return;const box=document.createElement('div');box.className=`practiceFixMessage ${kind}`;box.textContent=text;anchor.insertAdjacentElement('afterend',box)}
@@ -77,7 +88,6 @@ function setProgress(session,step){
   const subtitle=session.wrap?.querySelector('.practiceFixTitle span');
   if(subtitle)subtitle.textContent=`${levelLabel(session.grade)} · ${session.optionCount} şık · ${session.correctCount} doğru`;
 }
-
 function renderLoading(session,step){
   const cards=session.wrap?.querySelector('.practiceFixCards');if(!cards)return;
   setProgress(session,step);

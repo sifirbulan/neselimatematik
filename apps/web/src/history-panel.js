@@ -1,6 +1,7 @@
 const HISTORY_V2_KEY='nesevren-history-v2';
 const LEGACY_HISTORY_KEY='nesevren-history';
 const PROFILE_KEY='nesevren-user-profile-v1';
+const UNSCOPED_OWNER_KEY='nesevren-history-unscoped-owner-v1';
 const HISTORY_LIMIT=250;
 
 let pendingStudentQuestion=null;
@@ -8,11 +9,18 @@ let activeFilter='Tümü';
 
 function readJson(key,fallback=null){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback}catch{return fallback}}
 function writeJson(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch{}}
+function readText(key){try{return localStorage.getItem(key)||''}catch{return''}}
+function writeText(key,value){try{localStorage.setItem(key,value)}catch{}}
 function escapeHtml(value=''){return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
 function cleanText(value=''){return String(value||'').replace(/\s+/g,' ').trim()}
 function currentUserId(){const p=readJson(PROFILE_KEY,null);return p&&typeof p==='object'&&typeof p.userId==='string'?p.userId:''}
 function currentQuestion(){return cleanText(document.querySelector('.modernQuestionBox textarea')?.value||'')}
-function currentSubject(){const selected=document.querySelector('.subjectInline select')?.value?.trim();return selected&&selected!=='Otomatik'?selected:'Otomatik'}
+function currentSubject(){
+  const selected=document.querySelector('#subject,.subjectInline select')?.value?.trim();
+  if(selected&&selected!=='Otomatik')return selected;
+  const label=document.querySelector('.composerTitle span')?.textContent?.trim()||'';
+  return label&&label!=='Dersi AI algılar'&&label!=='Otomatik'?label:'Otomatik';
+}
 function hasPhotoQuestion(){return Boolean(document.querySelector('.photoPreview img'))}
 
 function inferTopic(question,subject=''){
@@ -58,8 +66,23 @@ function legacyHistory(){
     inputType:String(item?.question||'').includes('Fotoğraflı')?'image':'text'
   })).filter(Boolean);
 }
+function scopedHistoryParts(){
+  const user=currentUserId();const modern=v2History();const legacy=legacyHistory();const hasUnscoped=modern.some(item=>!item.userId)||legacy.length>0;
+  let unscopedOwner=readText(UNSCOPED_OWNER_KEY);
+  if(user&&!unscopedOwner&&hasUnscoped){unscopedOwner=user;writeText(UNSCOPED_OWNER_KEY,user)}
+  if(user){
+    return{
+      modern:modern.filter(item=>item.userId===user||(!item.userId&&unscopedOwner===user)),
+      legacy:unscopedOwner===user?legacy:[]
+    };
+  }
+  return{
+    modern:unscopedOwner?[]:modern.filter(item=>!item.userId),
+    legacy:unscopedOwner?[]:legacy
+  };
+}
 function allHistory(){
-  const modern=v2History();const legacy=legacyHistory();
+  const scoped=scopedHistoryParts();const modern=scoped.modern;const legacy=scoped.legacy;
   const combined=[...modern];
   for(const old of legacy){
     const duplicate=modern.some(item=>item.source==='student'&&item.question===old.question&&Math.abs(item.createdAt-old.createdAt)<60000);
@@ -70,7 +93,7 @@ function allHistory(){
 function addHistoryItem(raw){
   const item=normalizeItem({...raw,userId:raw?.userId||currentUserId()});if(!item)return;
   const items=v2History();
-  const duplicate=items.find(x=>x.source===item.source&&x.question===item.question&&Math.abs(x.createdAt-item.createdAt)<30000);
+  const duplicate=items.find(x=>x.userId===item.userId&&x.source===item.source&&x.question===item.question&&Math.abs(x.createdAt-item.createdAt)<30000);
   if(duplicate)return;
   writeJson(HISTORY_V2_KEY,[item,...items].sort((a,b)=>b.createdAt-a.createdAt).slice(0,HISTORY_LIMIT));
   document.dispatchEvent(new CustomEvent('nesevren:history-updated'));

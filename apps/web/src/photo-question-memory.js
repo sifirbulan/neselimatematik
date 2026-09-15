@@ -1,12 +1,15 @@
 const PHOTO_MEMORY_KEY='nesevren-error-photo-memory-v1';
+const PHOTO_MEMORY_OWNER_KEY='nesevren-error-photo-memory-owner-v1';
 const PROFILE_KEY='nesevren-user-profile-v1';
 const PHOTO_MEMORY_LIMIT=12;
 let pendingPhotoQuestion=null;
 
 function readJson(key,fallback=null){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback}catch{return fallback}}
 function writeJson(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true}catch{return false}}
+function readText(key){try{return localStorage.getItem(key)||''}catch{return''}}
+function writeText(key,value){try{localStorage.setItem(key,value)}catch{}}
 function cleanText(value=''){return String(value||'').replace(/\s+/g,' ').trim()}
-function escapeHtml(value=''){return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function escapeHtml(value=''){return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[ch]))}
 function currentProfile(){const value=readJson(PROFILE_KEY,null);return value&&typeof value==='object'?value:null}
 function currentUserId(){const profile=currentProfile();return typeof profile?.userId==='string'?profile.userId:''}
 function currentGrade(){const profile=currentProfile();return profile?.role==='student'&&typeof profile?.grade==='string'?profile.grade:''}
@@ -37,7 +40,12 @@ async function compactImage(dataUrl){
 }
 
 function memoryItems(){const value=readJson(PHOTO_MEMORY_KEY,[]);return Array.isArray(value)?value:[]}
-function scopedMemoryItems(){const user=currentUserId();return memoryItems().filter(item=>user?item?.userId===user:!item?.userId)}
+function scopedMemoryItems(){
+  const user=currentUserId();const all=memoryItems();const hasUnscoped=all.some(item=>!item?.userId);let owner=readText(PHOTO_MEMORY_OWNER_KEY);
+  if(user&&!owner&&hasUnscoped){owner=user;writeText(PHOTO_MEMORY_OWNER_KEY,user)}
+  if(user)return all.filter(item=>item?.userId===user||(!item?.userId&&owner===user));
+  return owner?[]:all.filter(item=>!item?.userId);
+}
 function persistMemory(record){
   const all=memoryItems();
   const withoutDuplicate=all.filter(item=>!(item?.userId===record.userId&&item?.signature===record.signature));

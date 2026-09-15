@@ -9,7 +9,7 @@ function writeJson(key,value){try{localStorage.setItem(key,JSON.stringify(value)
 function readText(key){try{return localStorage.getItem(key)||''}catch{return''}}
 function writeText(key,value){try{localStorage.setItem(key,value)}catch{}}
 function cleanText(value=''){return String(value||'').replace(/\s+/g,' ').trim()}
-function escapeHtml(value=''){return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[ch]))}
+function escapeHtml(value=''){return String(value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
 function currentProfile(){const value=readJson(PROFILE_KEY,null);return value&&typeof value==='object'?value:null}
 function currentUserId(){const profile=currentProfile();return typeof profile?.userId==='string'?profile.userId:''}
 function currentGrade(){const profile=currentProfile();return profile?.role==='student'&&typeof profile?.grade==='string'?profile.grade:''}

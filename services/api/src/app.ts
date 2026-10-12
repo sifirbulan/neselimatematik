@@ -1,4 +1,5 @@
 import cors from 'cors';
+import { EDUCATION_STAGES, SUBJECT_CATALOG, getSubjectsForProfile, validateEducationProfile } from './education/education-catalog';
 import express from 'express';
 import { getNextAdaptiveQuestion, recordAdaptiveResult } from './adaptive/adaptive-engine';
 import { getKnowledgeGraph, getKnowledgeGraphView } from './knowledge/knowledge-graph';
@@ -24,6 +25,17 @@ function readSolutionSteps(value: unknown): string[] | undefined {
   if (value.some((step) => typeof step !== 'string' || !step.trim())) return undefined;
   return value.map((step) => step.trim());
 }
+
+// Yeni çok dersli katalog; eski matematik API uçları korunur.
+app.get('/api/v1/education/catalog', (_req, res) => {
+  return res.json({ stages: EDUCATION_STAGES, subjects: SUBJECT_CATALOG });
+});
+
+app.post('/api/v1/education/subjects', (req, res) => {
+  const { profile, error } = validateEducationProfile(req.body);
+  if (!profile) return res.status(400).json({ error });
+  return res.json({ profile, subjects: getSubjectsForProfile(profile) });
+});
 
 app.get('/health', (_req, res) => {
   res.json({ service: 'nesevren-api', status: 'ok' });

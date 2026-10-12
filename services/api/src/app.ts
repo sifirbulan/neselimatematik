@@ -1,4 +1,5 @@
 import cors from 'cors';
+import { explainAtLevel, solveLinearEquation } from './solver/verified-equation-solver';
 import { classifyQuestion, validateQuestionIntake } from './questions/question-intake';
 import { EDUCATION_STAGES, SUBJECT_CATALOG, getSubjectsForProfile, validateEducationProfile } from './education/education-catalog';
 import express from 'express';
@@ -76,6 +77,30 @@ app.delete('/api/v1/memory/:studentId', async (req, res) => {
 
 // Neş AI: ders ve seviyeye duyarlı metin sorusu kabulü.
 // Mevcut /questions/analyze uç noktası geriye uyumluluk için korunur.
+// İlk doğrulanabilir çözüm akışı: yalnızca tek bilinmeyenli doğrusal denklemler.
+app.post('/api/v1/questions/solve', (req, res) => {
+  const body = req.body ?? {};
+  if (typeof body.question !== 'string' || !body.question.trim()) {
+    return res.status(400).json({ error: 'Soru metni gerekli.' });
+  }
+  if (body.question.length > 12000) {
+    return res.status(400).json({ error: 'Soru metni en fazla 12000 karakter olabilir.' });
+  }
+  const solution = solveLinearEquation(body.question);
+  if (!solution) {
+    return res.status(422).json({
+      status: 'unsupported',
+      verified: false,
+      message: 'Bu soruyu henüz güvenilir şekilde çözemiyorum. Şimdilik yalnızca tek bilinmeyenli doğrusal denklemler destekleniyor.',
+    });
+  }
+  return res.json({
+    ...solution,
+    verified: true,
+    teaching: explainAtLevel(solution, body.explanationLevel === 'detailed' ? 'detailed' : 'simple'),
+  });
+});
+
 app.post('/api/v1/questions/intake', (req, res) => {
   const { intake, error } = validateQuestionIntake(req.body);
   if (!intake) return res.status(400).json({ error });

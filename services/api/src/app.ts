@@ -1,4 +1,5 @@
 import cors from 'cors';
+import { createVisionProvider, transcribeQuestionPhoto } from './ai/photo-question-service';
 import { answerEducationalQuestion, createAiProvider } from './ai/education-answer-service';
 import { explainAtLevel, solveLinearEquation } from './solver/verified-equation-solver';
 import { classifyQuestion, validateQuestionIntake } from './questions/question-intake';
@@ -80,6 +81,12 @@ app.delete('/api/v1/memory/:studentId', async (req, res) => {
 // Mevcut /questions/analyze uç noktası geriye uyumluluk için korunur.
 // İlk doğrulanabilir çözüm akışı: yalnızca tek bilinmeyenli doğrusal denklemler.
 // Çok dersli Neş AI: matematikte bağımsız doğrulama, diğer derslerde açık AI uyarısı.
+// Fotoğrafı yalnızca metne dönüştürür; öğrenci onayı olmadan çözüm üretmez.
+app.post('/api/v1/questions/photo/transcribe', async (req, res) => {
+  const result = await transcribeQuestionPhoto(req.body, createVisionProvider());
+  return res.status(result.status).json(result.payload);
+});
+
 app.post('/api/v1/ai/answer', async (req, res) => {
   const result = await answerEducationalQuestion(req.body, createAiProvider());
   return res.status(result.status).json(result.payload);

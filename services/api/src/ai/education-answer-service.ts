@@ -1,3 +1,4 @@
+import { reviewAiAnswer } from './answer-review-service';
 import { classifyQuestion, validateQuestionIntake } from '../questions/question-intake';
 import { explainAtLevel, solveLinearEquation } from '../solver/verified-equation-solver';
 
@@ -90,10 +91,17 @@ export async function answerEducationalQuestion(body: unknown, provider?: AiProv
       ...(intake.grade !== undefined ? { grade: intake.grade } : {}),
       explanationLevel: level,
     });
+    const review = await reviewAiAnswer(provider, {
+      question: intake.question, answer,
+      subject: classified.analysis.subjectTitle ?? classified.analysis.subjectId,
+      stage: intake.stage,
+      ...(intake.grade === undefined ? {} : { grade: intake.grade }),
+    });
     return { status: 200, payload: {
       status: 'answered', subjectId: classified.analysis.subjectId, answer,
       verified: false, verificationMethod: 'not_available', source: 'ai_provider',
-      notice: 'Bu yanıt yapay zekâ tarafından üretildi; bağımsız doğrulaması yapılmadı.',
+      review,
+      notice: 'Bu yanıt yapay zekâ tarafından üretildi. İkinci model incelemesi bağımsız doğrulama değildir.',
     } };
   } catch {
     return { status: 503, payload: { status: 'provider_unavailable', message: 'Yapay zekâ hizmeti şu anda kullanılamıyor.' } };

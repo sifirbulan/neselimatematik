@@ -20,3 +20,24 @@ button.secondary { background: #e2e8f0; color: #0f172a; }
 article { padding: 24px; border: 1px solid #e2e8f0; border-radius: 20px; background: white; display: grid; gap: 10px; }
 article span { color: #64748b; line-height: 1.5; }
 @media (max-width: 760px) { .shell { padding: 24px 16px; } .hero { padding: 32px 24px; } .cards { grid-template-columns: 1fr; } }
+
+
+.question-panel { width: min(1080px, 100%); margin: 18px auto 0; padding: 32px; background: white; border-radius: 24px; box-shadow: 0 14px 45px rgba(15,23,42,.06); }
+.question-panel h2 { margin: 0 0 22px; font-size: 28px; }
+.field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
+.question-panel label { display: grid; gap: 8px; font-size: 14px; font-weight: 750; color: #334155; }
+.question-panel select, .question-panel input, .question-panel textarea { font: inherit; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; width: 100%; background: white; color: #0f172a; }
+.question-panel textarea { resize: vertical; min-height: 120px; }
+.question-label { margin-bottom: 16px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.photo-box { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; margin: 0 0 20px; }
+.photo-box img { max-width: min(100%, 280px); max-height: 220px; object-fit: contain; border-radius: 12px; border: 1px solid #cbd5e1; }
+.confirmation { color: #92400e; background: #fffbeb; border-radius: 12px; padding: 12px 16px; font-size: 15px; }
+.error { color: #991b1b; background: #fef2f2; border-radius: 12px; padding: 12px 16px; font-size: 15px; }
+.answer-box { margin-top: 24px; padding: 20px; background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 16px; overflow-wrap: anywhere; }
+.answer-box h3 { margin: 0 0 12px; }
+.answer-box p { font-size: 16px; }
+.answer-text { font-weight: 750; color: #0f172a; white-space: pre-wrap; }
+.answer-box li { padding: 4px 0; line-height: 1.6; }
+button:disabled { opacity: .55; cursor: wait; }
+@media (max-width: 760px) { .question-panel { padding: 24px 18px; } }

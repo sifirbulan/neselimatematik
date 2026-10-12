@@ -1,4 +1,5 @@
 import cors from 'cors';
+import { classifyQuestion, validateQuestionIntake } from './questions/question-intake';
 import { EDUCATION_STAGES, SUBJECT_CATALOG, getSubjectsForProfile, validateEducationProfile } from './education/education-catalog';
 import express from 'express';
 import { getNextAdaptiveQuestion, recordAdaptiveResult } from './adaptive/adaptive-engine';
@@ -71,6 +72,16 @@ app.delete('/api/v1/memory/:studentId', async (req, res) => {
   const deleted = await learningMemoryService.deleteProfile(studentId);
   if (!deleted) return res.status(404).json({ error: 'Silinecek öğrenme hafızası bulunamadı.' });
   return res.json({ status: 'deleted', studentId });
+});
+
+// Neş AI: ders ve seviyeye duyarlı metin sorusu kabulü.
+// Mevcut /questions/analyze uç noktası geriye uyumluluk için korunur.
+app.post('/api/v1/questions/intake', (req, res) => {
+  const { intake, error } = validateQuestionIntake(req.body);
+  if (!intake) return res.status(400).json({ error });
+  const result = classifyQuestion(intake);
+  if (!result.analysis) return res.status(400).json({ error: result.error });
+  return res.json(result.analysis);
 });
 
 app.post('/api/v1/questions/analyze', (req, res) => {

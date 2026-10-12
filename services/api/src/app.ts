@@ -1,4 +1,5 @@
 import cors from 'cors';
+import { answerEducationalQuestion, createAiProvider } from './ai/education-answer-service';
 import { explainAtLevel, solveLinearEquation } from './solver/verified-equation-solver';
 import { classifyQuestion, validateQuestionIntake } from './questions/question-intake';
 import { EDUCATION_STAGES, SUBJECT_CATALOG, getSubjectsForProfile, validateEducationProfile } from './education/education-catalog';
@@ -78,6 +79,12 @@ app.delete('/api/v1/memory/:studentId', async (req, res) => {
 // Neş AI: ders ve seviyeye duyarlı metin sorusu kabulü.
 // Mevcut /questions/analyze uç noktası geriye uyumluluk için korunur.
 // İlk doğrulanabilir çözüm akışı: yalnızca tek bilinmeyenli doğrusal denklemler.
+// Çok dersli Neş AI: matematikte bağımsız doğrulama, diğer derslerde açık AI uyarısı.
+app.post('/api/v1/ai/answer', async (req, res) => {
+  const result = await answerEducationalQuestion(req.body, createAiProvider());
+  return res.status(result.status).json(result.payload);
+});
+
 app.post('/api/v1/questions/solve', (req, res) => {
   const body = req.body ?? {};
   if (typeof body.question !== 'string' || !body.question.trim()) {

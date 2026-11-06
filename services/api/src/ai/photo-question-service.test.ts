@@ -21,4 +21,10 @@ describe('Fotoğrafla soru kabulü', () => {
     const result = await transcribeQuestionPhoto({ imageDataUrl: tinyPng }, { transcribe: async () => 'OKUNAMADI' });
     expect(result.status).toBe(422);
   });
+  it('görsel sağlayıcısı hata verirse teşhis edilebilir hata döndürür', async () => {
+    const result = await transcribeQuestionPhoto({ imageDataUrl: tinyPng }, { transcribe: async () => { throw new Error('provider failure'); } });
+    expect(result.status).toBe(503);
+    expect(result.payload.code).toBe('PHOTO_TRANSCRIPTION_UNAVAILABLE');
+    expect(result.payload.retryable).toBe(true);
+  });
 });

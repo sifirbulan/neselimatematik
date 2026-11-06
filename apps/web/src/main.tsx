@@ -4,7 +4,7 @@ import './styles.css';
 
 type Stage = 'preschool' | 'primary' | 'middle' | 'high' | 'university';
 type Answer = { status?: string; answer?: string; explanation?: string; steps?: string[]; verified?: boolean; notice?: string; review?: { status?: string; findings?: string[] }; message?: string; error?: string };
-const API = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '') || '';
+const API = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '') || 'https://nesevren-api-v2.onrender.com';
 
 async function postJson(path: string, data: Record<string, unknown>): Promise<Answer & { question?: string }> {
   const response = await fetch(`${API}${path}`, {

@@ -4,14 +4,24 @@ import './styles.css';
 
 type Stage = 'preschool' | 'primary' | 'middle' | 'high' | 'university';
 type Answer = { status?: string; answer?: string; explanation?: string; steps?: string[]; verified?: boolean; notice?: string; review?: { status?: string; findings?: string[] }; message?: string; error?: string };
-const API = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '') || '';
+const API = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '') || 'https://nesevren-api-v2.onrender.com';
 
 async function postJson(path: string, data: Record<string, unknown>): Promise<Answer & { question?: string }> {
-  const response = await fetch(`${API}${path}`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
-  });
-  const payload = await response.json() as Answer & { question?: string };
-  if (!response.ok) throw new Error(payload.error || payload.message || 'İşlem tamamlanamadı.');
+  let response: Response;
+  try {
+    response = await fetch(`${API}${path}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data),
+    });
+  } catch {
+    throw new Error('Neş AI sunucusuna bağlanılamadı. İnternet bağlantısını ve API dağıtımını kontrol edin.');
+  }
+  let payload: Answer & { question?: string };
+  try {
+    payload = await response.json() as Answer & { question?: string };
+  } catch {
+    throw new Error('Sunucudan okunabilir yanıt alınamadı. Lütfen biraz sonra tekrar deneyin.');
+  }
+  if (!response.ok) throw new Error(payload.error || payload.message || `Sunucu hatası (${response.status}).`);
   return payload;
 }
 

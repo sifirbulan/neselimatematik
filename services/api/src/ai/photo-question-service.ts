@@ -43,8 +43,9 @@ export class OpenAiVisionProvider implements VisionProvider {
 
 export function createVisionProvider(): VisionProvider | undefined {
   const key = process.env.NESEVREN_AI_API_KEY?.trim();
-  const model = process.env.NESEVREN_VISION_MODEL?.trim();
-  return key && model ? new OpenAiVisionProvider(key, model) : undefined;
+  // Ayrı görsel model ayarı zorunlu değil: metin modelini kullan veya görsel destekli varsayılanı seç.
+  const model = process.env.NESEVREN_VISION_MODEL?.trim() || process.env.NESEVREN_AI_MODEL?.trim() || 'gpt-4.1-mini';
+  return key ? new OpenAiVisionProvider(key, model) : undefined;
 }
 
 export function validateImageDataUrl(value: unknown): { dataUrl?: string; error?: string } {
@@ -83,6 +84,10 @@ export async function transcribeQuestionPhoto(body: unknown, provider?: VisionPr
       confirmed: false,
     } };
   } catch {
-    return { status: 503, payload: { error: 'Fotoğraf okuma hizmetine ulaşılamıyor.' } };
+    return { status: 503, payload: {
+      error: 'Fotoğraf okuma servisi yanıt veremedi. API anahtarını, model erişimini ve sunucu günlüklerini kontrol edin.',
+      code: 'PHOTO_TRANSCRIPTION_UNAVAILABLE',
+      retryable: true,
+    } };
   }
 }
